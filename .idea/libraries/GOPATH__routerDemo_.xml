@@ -1,0 +1,23 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;routerDemo&gt;">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../Demo/src/tcp" />
+      <root url="file://$PROJECT_DIR$/../Demo/src/manager" />
+      <root url="file://$PROJECT_DIR$/../Demo/src/web" />
+      <root url="file://$PROJECT_DIR$/../BeegoDemo/src/apiproject" />
+      <root url="file://$PROJECT_DIR$/../BeegoDemo/src/github.com" />
+      <root url="file://$PROJECT_DIR$/../BeegoDemo/src/myautoproject" />
+    </CLASSES>
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/../Demo/src/tcp" />
+      <root url="file://$PROJECT_DIR$/../Demo/src/manager" />
+      <root url="file://$PROJECT_DIR$/../Demo/src/web" />
+      <root url="file://$PROJECT_DIR$/../BeegoDemo/src/apiproject" />
+      <root url="file://$PROJECT_DIR$/../BeegoDemo/src/github.com" />
+      <root url="file://$PROJECT_DIR$/../BeegoDemo/src/myautoproject" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>
