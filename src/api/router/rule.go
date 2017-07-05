@@ -28,7 +28,7 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			//这里，主要是捕获调用函数参数不一致情况
-			fmt.Println("get error:", err)
+			system.PrintError(err)
 			io.WriteString(w, system.Error404())
 		}
 	}()
@@ -49,10 +49,10 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 
 func parse(cfg *system.Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 	b := cfg.Cb.Instance()
-	fmt.Printf("%p\n", b)
+	//fmt.Printf("%p\n", b)
 	ctx := &system.Context{w, req}
 	b.Context(ctx)
-	fmt.Printf("%p\n", b)
+	//fmt.Printf("%p\n", b)
 
 	if len(data) == 0 {
 		data = append(data, "index")

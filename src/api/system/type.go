@@ -1,8 +1,8 @@
 package system
 /**
 Cb : controller
-Method : default controller request method
-Methods : controller functions exact request method
+Method : default controller request method. if "",means no limit for method
+Methods : controller functions exact request method. if "",means no limit for method
  */
 type Cfg struct {
 	Cb Base

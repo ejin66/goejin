@@ -6,6 +6,11 @@ import (
 	"bytes"
 )
 
+func PrintError(msg interface{}) {
+	//其中0x1B是标记，[开始定义颜色，1代表高亮，39代表黑色背景，31代表红色前景，0代表恢复默认颜色。
+	fmt.Printf("%c[0;39;31m%s%c[0m\n", 0x1B ,msg, 0x1B)
+}
+
 func Error404() string {
 	return "404 not found"
 }

@@ -6,7 +6,9 @@ import (
 )
 
 /**
-配置ip , port ,home address
+ip
+port
+home address
  */
 const (
 	IP_ADDRESS = "127.0.0.1"
@@ -15,8 +17,8 @@ const (
 )
 
 /**
-配置路由关系表
+Route table
  */
 var RouteTable = system.Router{
-	"HOME": system.Cfg{&controller.HomeController{}, "GET", system.MethodMap{ "Index" : "GET" , }},
+	"HOME": system.Cfg{&controller.HomeController{}, "GET", system.MethodMap{ "Index" : "" , }},
 }
