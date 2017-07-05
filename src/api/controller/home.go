@@ -2,16 +2,16 @@ package controller
 
 import (
 	"strconv"
-	"api/system"
+	"api/system/controller"
 	"api/db"
 )
 
 /*              以下结构或方法为必要             */
 type HomeController struct {
-	system.BaseController
+	controller.BaseController
 }
 
-func (self *HomeController) Instance() system.Base {
+func (self *HomeController) Instance() controller.Base {
 	return &HomeController{}
 }
 

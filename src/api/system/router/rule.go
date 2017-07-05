@@ -1,4 +1,4 @@
-package system
+package router
 
 import (
 	"net/http"
@@ -8,10 +8,11 @@ import (
 	"reflect"
 	"api/config"
 	"api/router"
-	"api/common"
+	"api/system/common"
+	"api/system/controller"
 )
 
-var routeMap map[string]Cfg
+var routeMap map[string]controller.Cfg
 
 func init() {
 	routeMap = router.RouteTable
@@ -48,10 +49,10 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func parse(cfg *Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
+func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 	b := cfg.Cb.Instance()
 	//fmt.Printf("%p\n", b)
-	ctx := &Context{w, req}
+	ctx := &controller.Context{w, req}
 	b.Context(ctx)
 	//fmt.Printf("%p\n", b)
 

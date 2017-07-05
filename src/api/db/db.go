@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"errors"
 	"fmt"
-	"api/common"
+	"api/system/common"
 )
 
 var db *sql.DB

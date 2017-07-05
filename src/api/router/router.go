@@ -1,13 +1,13 @@
 package router
 
 import (
+	sysController "api/system/controller"
 	"api/controller"
-	"api/system"
 )
 
 /**
 Route table
  */
-var RouteTable = system.Router{
-	"HOME": system.Cfg{&controller.HomeController{}, "", system.MethodMap{ "Index" : "" , }},
+var RouteTable = sysController.Router{
+	"HOME": sysController.Cfg{&controller.HomeController{}, "", sysController.MethodMap{ "Index" : "" , }},
 }

@@ -1,11 +1,11 @@
-package system
+package controller
 
 import (
 	"net/http"
 	"io"
 	"fmt"
 	"io/ioutil"
-	"api/common"
+	"api/system/common"
 )
 
 type Base interface {
