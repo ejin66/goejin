@@ -5,12 +5,28 @@ import (
 	"io"
 	"fmt"
 	"io/ioutil"
+	"api/common"
 )
 
 type Base interface {
 	Context(c *Context)
 	Instance() Base //确保每次请求，都开辟新的地址空间，避免多个请求共用一个
 }
+
+/**
+Cb : controller
+Method : default controller request method. if "",means no limit for method
+Methods : controller functions exact request method. if "",means no limit for method
+ */
+type Cfg struct {
+	Cb Base
+	DefaultMethod string
+	Methods MethodMap
+}
+
+type MethodMap map[string]string
+
+type Router map[string]Cfg
 
 type Context struct {
 	W   *http.ResponseWriter
@@ -37,7 +53,7 @@ func (this *Context) Body() string {
 	body, err := ioutil.ReadAll(this.Req.Body)
 
 	if err != nil {
-		PrintError(err)
+		common.PrintError(err)
 		return ""
 	}
 	return string(body)

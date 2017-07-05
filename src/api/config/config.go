@@ -1,10 +1,5 @@
 package config
 
-import (
-	"api/controller"
-	"api/system"
-)
-
 /**
 ip
 port
@@ -20,13 +15,6 @@ const (
 	DB_NAME="test"
 
 	HOME_URI   = "/home"
-
-
 )
 
-/**
-Route table
- */
-var RouteTable = system.Router{
-	"HOME": system.Cfg{&controller.HomeController{}, "GET", system.MethodMap{ "Index" : "" , }},
-}
+

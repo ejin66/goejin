@@ -1,4 +1,4 @@
-package router
+package system
 
 import (
 	"net/http"
@@ -7,13 +7,14 @@ import (
 	"strings"
 	"reflect"
 	"api/config"
-	"api/system"
+	"api/router"
+	"api/common"
 )
 
-var routeMap map[string]system.Cfg
+var routeMap map[string]Cfg
 
 func init() {
-	routeMap = config.RouteTable
+	routeMap = router.RouteTable
 }
 
 //路由规则
@@ -28,8 +29,8 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			//这里，主要是捕获调用函数参数不一致情况
-			system.PrintError(err)
-			io.WriteString(w, system.Error404())
+			common.PrintError(err)
+			io.WriteString(w, common.Error404())
 		}
 	}()
 	uri := req.RequestURI
@@ -43,14 +44,14 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
 		parse(&v, data[2:], &w, req)
 	} else {
-		io.WriteString(w, system.Error404())
+		io.WriteString(w, common.Error404())
 	}
 }
 
-func parse(cfg *system.Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
+func parse(cfg *Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 	b := cfg.Cb.Instance()
 	//fmt.Printf("%p\n", b)
-	ctx := &system.Context{w, req}
+	ctx := &Context{w, req}
 	b.Context(ctx)
 	//fmt.Printf("%p\n", b)
 
@@ -68,7 +69,7 @@ func parse(cfg *system.Cfg, data []string, w *http.ResponseWriter, req *http.Req
 	methodName := strings.ToUpper(string(data[0][0])) + strings.ToLower(string(data[0][1:]))
 
 	if methodName == "Instance" {
-		io.WriteString(*w, system.Error404())
+		io.WriteString(*w, common.Error404())
 		return
 	}
 
@@ -83,7 +84,7 @@ func parse(cfg *system.Cfg, data []string, w *http.ResponseWriter, req *http.Req
 
 	//若请求方法不一致，直接抛出error
 	if requestMethod != "" && requestMethod != req.Method {
-		io.WriteString(*w, system.Error404())
+		io.WriteString(*w, common.Error404())
 		return
 	}
 
@@ -92,7 +93,7 @@ func parse(cfg *system.Cfg, data []string, w *http.ResponseWriter, req *http.Req
 	if mMethod.IsValid() {
 		mMethod.Call(params)
 	} else {
-		io.WriteString(*w, system.Error404())
+		io.WriteString(*w, common.Error404())
 	}
 
 }

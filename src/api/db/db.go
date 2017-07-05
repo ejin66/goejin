@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"api/config"
 	"strconv"
-	"api/system"
 	"errors"
 	"fmt"
+	"api/common"
 )
 
 var db *sql.DB
@@ -24,7 +24,7 @@ func init() {
 	database, err := sql.Open("mysql", dataSourceName)
 
 	if err != nil {
-		system.PrintError(err)
+		common.PrintError(err)
 	} else {
 		db = database
 	}
@@ -64,7 +64,7 @@ func Query(table string, condition Ipt, conditionState ...string) []map[string]s
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
-		system.PrintError(err)
+		common.PrintError(err)
 		return nil
 	}
 
@@ -75,7 +75,7 @@ func Query(table string, condition Ipt, conditionState ...string) []map[string]s
 	rows, err := db.Query(sql)
 
 	if err != nil {
-		system.PrintError(err)
+		common.PrintError(err)
 		return []map[string]string{}
 	}
 
@@ -107,7 +107,7 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
-		system.PrintError(err)
+		common.PrintError(err)
 		return false
 	}
 
@@ -116,7 +116,7 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	_, err2 := db.Exec(sql)
 
 	if err2 != nil {
-		system.PrintError(err2)
+		common.PrintError(err2)
 		return false
 	}
 	return true
@@ -126,7 +126,7 @@ func Update(table string, update Ipt, condition Ipt, conditionState ...string) b
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
-		system.PrintError(err)
+		common.PrintError(err)
 		return false
 	}
 
@@ -135,7 +135,7 @@ func Update(table string, update Ipt, condition Ipt, conditionState ...string) b
 		result, err2 := valueFormat(v)
 
 		if err2 != nil {
-			system.PrintError(err2)
+			common.PrintError(err2)
 			return false
 		}
 
@@ -151,7 +151,7 @@ func Update(table string, update Ipt, condition Ipt, conditionState ...string) b
 	_, err3 := db.Exec(sql)
 
 	if err3 != nil {
-		system.PrintError(err3)
+		common.PrintError(err3)
 		return false
 	}
 	return true
@@ -165,7 +165,7 @@ func Insert(table string, insert Ipt) int64 {
 	for k, v := range insert {
 		result, err := valueFormat(v)
 		if err != nil {
-			system.PrintError(err)
+			common.PrintError(err)
 			return -1
 		}
 		columns += "," + k
@@ -175,16 +175,16 @@ func Insert(table string, insert Ipt) int64 {
 	columns = string(columns[1:])
 	values = string(values[1:])
 
-	sql := "INSERT INTO " + table + "(" + columns + ") VALUES" + "("  + values + ")"
+	sql := "INSERT INTO " + table + "(" + columns + ") VALUES" + "(" + values + ")"
 	fmt.Println(sql)
 
 	result, err2 := db.Exec(sql)
 
 	if err2 != nil {
-		system.PrintError(err2)
+		common.PrintError(err2)
 		return -1
 	}
-	i,_ := result.LastInsertId()
+	i, _ := result.LastInsertId()
 	return i
 
 }

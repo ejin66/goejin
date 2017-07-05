@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"fmt"
 	"api/config"
-	"api/router"
+	"api/system"
 )
 
 var ip string
@@ -12,7 +12,7 @@ var serverMux *http.ServeMux
 
 func init() {
 	ip = config.IP_ADDRESS + ":" + config.IP_PORT
-	serverMux = router.GetServeMux()
+	serverMux = system.GetServeMux()
 }
 
 func main() {
