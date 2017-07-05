@@ -54,7 +54,7 @@ func concatWhereCondition(condition Ipt, conditionState ...string) (string, erro
 	}
 
 	for _, item := range conditionState {
-		where += " AND " + item
+		where += item
 	}
 	return where, nil
 }
@@ -112,6 +112,7 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	}
 
 	sql := "DELETE FROM " + table + " WHERE 1 = 1 " + where
+	fmt.Println(sql)
 	_, err2 := db.Exec(sql)
 
 	if err2 != nil {

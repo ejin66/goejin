@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="07366573-e0e1-4c23-b125-afda2112ecf2" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/api/db/db.go" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/api/dbTest.go" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/api/config/config.go" afterPath="$PROJECT_DIR$/src/api/config/config.go" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/api/main.go" afterPath="$PROJECT_DIR$/src/api/main.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/api/db/db.go" afterPath="$PROJECT_DIR$/src/api/db/db.go" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/api/dbTest.go" afterPath="$PROJECT_DIR$/src/api/dbTest.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -99,8 +97,8 @@
       <file leaf-file-name="dbTest.go" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/api/dbTest.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+            <state relative-caret-position="304">
+              <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
               <folding>
                 <element signature="e#14#41#0" expanded="true" />
               </folding>
@@ -111,12 +109,11 @@
       <file leaf-file-name="db.go" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/api/db/db.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1241">
-              <caret line="14" column="2" lean-forward="true" selection-start-line="14" selection-start-column="2" selection-end-line="14" selection-end-column="2" />
+            <state relative-caret-position="320">
+              <caret line="54" column="0" lean-forward="true" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
               <folding>
                 <element signature="e#12#130#0" expanded="true" />
                 <element signature="n#!!block;n#Query#0" expanded="false" />
-                <element signature="n#!!block;n#Delete#0" expanded="false" />
                 <element signature="n#!!block;n#Update#0" expanded="false" />
               </folding>
             </state>
@@ -154,8 +151,8 @@
         <option value="$PROJECT_DIR$/src/api/system/db.go" />
         <option value="$PROJECT_DIR$/src/api/main.go" />
         <option value="$PROJECT_DIR$/src/api/main2.go" />
-        <option value="$PROJECT_DIR$/src/api/dbTest.go" />
         <option value="$PROJECT_DIR$/src/api/db/db.go" />
+        <option value="$PROJECT_DIR$/src/api/dbTest.go" />
       </list>
     </option>
   </component>
@@ -376,7 +373,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Go Single File.go run main2.go">
+  <component name="RunManager" selected="Go Single File.go run dbTest.go">
     <configuration default="false" name="go run main.go" type="GoRunFileConfiguration" factoryName="Go Single File" temporary="true">
       <module name="goejin" />
       <working_directory value="$PROJECT_DIR$/" />
@@ -387,6 +384,12 @@
       <module name="goejin" />
       <working_directory value="$PROJECT_DIR$/" />
       <filePath value="$PROJECT_DIR$/src/api/main2.go" />
+      <method />
+    </configuration>
+    <configuration default="false" name="go run dbTest.go" type="GoRunFileConfiguration" factoryName="Go Single File" temporary="true">
+      <module name="goejin" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <filePath value="$PROJECT_DIR$/src/api/dbTest.go" />
       <method />
     </configuration>
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
@@ -443,14 +446,16 @@
       <envs />
       <method />
     </configuration>
-    <list size="2">
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Go Single File.go run main.go" />
       <item index="1" class="java.lang.String" itemvalue="Go Single File.go run main2.go" />
+      <item index="2" class="java.lang.String" itemvalue="Go Single File.go run dbTest.go" />
     </list>
     <recent_temporary>
-      <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Go Single File.go run main2.go" />
-        <item index="1" class="java.lang.String" itemvalue="Go Single File.go run main.go" />
+      <list size="3">
+        <item index="0" class="java.lang.String" itemvalue="Go Single File.go run dbTest.go" />
+        <item index="1" class="java.lang.String" itemvalue="Go Single File.go run main2.go" />
+        <item index="2" class="java.lang.String" itemvalue="Go Single File.go run main.go" />
       </list>
     </recent_temporary>
   </component>
@@ -497,7 +502,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="framework update" />
-    <option name="LAST_COMMIT_MESSAGE" value="framework update" />
+    <MESSAGE value="封装数据库的增删改查" />
+    <option name="LAST_COMMIT_MESSAGE" value="封装数据库的增删改查" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -632,12 +638,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/db/db.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1241">
-          <caret line="14" column="2" lean-forward="true" selection-start-line="14" selection-start-column="2" selection-end-line="14" selection-end-column="2" />
+        <state relative-caret-position="320">
+          <caret line="54" column="0" lean-forward="true" selection-start-line="54" selection-start-column="0" selection-end-line="54" selection-end-column="0" />
           <folding>
             <element signature="e#12#130#0" expanded="true" />
             <element signature="n#!!block;n#Query#0" expanded="false" />
-            <element signature="n#!!block;n#Delete#0" expanded="false" />
             <element signature="n#!!block;n#Update#0" expanded="false" />
           </folding>
         </state>
@@ -645,8 +650,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/api/dbTest.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="17" column="0" lean-forward="true" selection-start-line="17" selection-start-column="0" selection-end-line="17" selection-end-column="0" />
+        <state relative-caret-position="304">
+          <caret line="16" column="1" lean-forward="true" selection-start-line="16" selection-start-column="1" selection-end-line="16" selection-end-column="1" />
           <folding>
             <element signature="e#14#41#0" expanded="true" />
           </folding>
