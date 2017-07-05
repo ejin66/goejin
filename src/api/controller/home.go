@@ -3,20 +3,25 @@ package controller
 import (
 	"fmt"
 	"strconv"
+	"api/system"
 )
 
+/*              以下结构或方法为必要             */
 type HomeController struct{
-	BaseController
+	system.BaseController
 }
 
-func (self  *HomeController) Instance() Base {
+func (self  *HomeController) Instance() system.Base {
 	return &HomeController{}
 }
+
+/*              以下方法为自定义方法             */
 
 func (self *HomeController) Index()  {
 	fmt.Printf("home:%p\n",self)
 	self.Ctx.Response("index.....")
 }
+
 
 func (self *HomeController) Show() {
 	self.Ctx.Response("show data")

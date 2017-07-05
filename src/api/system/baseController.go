@@ -1,4 +1,4 @@
-package controller
+package system
 
 import (
 	"net/http"
@@ -7,7 +7,7 @@ import (
 
 type Base interface {
 	Context(c *Context)
-	Instance() Base
+	Instance() Base //确保每次请求，都开辟新的地址空间，避免多个请求共用一个
 }
 
 type Context struct {
