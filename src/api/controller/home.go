@@ -6,7 +6,6 @@ import (
 	"api/db"
 )
 
-/*              以下结构或方法为必要             */
 type HomeController struct {
 	controller.BaseController
 }
@@ -14,6 +13,14 @@ type HomeController struct {
 func (self *HomeController) Instance() controller.Base {
 	return &HomeController{}
 }
+
+
+func (self *HomeController) Filter() (bool,string) {
+	return true,""
+}
+
+
+
 
 /*              以下方法为自定义方法             */
 
@@ -37,7 +44,7 @@ func (self *HomeController) Add(i string, j string) {
 }
 
 func (self *HomeController) Insert(name string) {
-	result := db.Insert("user_table", db.Ipt{"user_name" : name})
+	result := db.Insert("user_info", db.Ipt{"user_name" : name})
 	if result == -1 {
 		self.Ctx.Response("insert failed!")
 		return

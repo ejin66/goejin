@@ -18,14 +18,12 @@ func init() {
 	routeMap = router.RouteTable
 }
 
-//路由规则
 func GetServeMux() *http.ServeMux {
 	var mServeMux http.ServeMux
 	mServeMux.HandleFunc("/", defaultHandler)
 	return &mServeMux
 }
 
-//路由规则
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
@@ -36,7 +34,7 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	}()
 	uri := req.RequestURI
 
-	fmt.Println(req.Method , "request ", uri)
+	fmt.Print(req.Method, " " , uri , " ")
 
 	if uri == "/" {
 		uri = config.HOME_URI
@@ -45,6 +43,7 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
 		parse(&v, data[2:], &w, req)
 	} else {
+		common.PrintError("No router found")
 		io.WriteString(w, common.Error404())
 	}
 }
@@ -55,6 +54,13 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 	ctx := &controller.Context{w, req}
 	b.Context(ctx)
 	//fmt.Printf("%p\n", b)
+
+	//过滤部分请求
+	if ok, errMsg := b.Filter(); !ok {
+		common.PrintError("Filter out")
+		io.WriteString(*w, errMsg)
+		return
+	}
 
 	if len(data) == 0 {
 		data = append(data, "index")
@@ -69,7 +75,9 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 	//将方法名转换成{首字母大写、其余小写}的形式
 	methodName := strings.ToUpper(string(data[0][0])) + strings.ToLower(string(data[0][1:]))
 
-	if methodName == "Instance" {
+	//某些内置方法，这里做特殊判断
+	if methodName == "Instance" || methodName == "Filter" || methodName == "Context" {
+		common.PrintError("Build-in method")
 		io.WriteString(*w, common.Error404())
 		return
 	}
@@ -85,6 +93,7 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 
 	//若请求方法不一致，直接抛出error
 	if requestMethod != "" && requestMethod != req.Method {
+		common.PrintError("Request method mismatching")
 		io.WriteString(*w, common.Error404())
 		return
 	}
@@ -93,10 +102,10 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 
 	if mMethod.IsValid() {
 		mMethod.Call(params)
+		fmt.Println()
 	} else {
+		common.PrintError("Not found method in controller")
 		io.WriteString(*w, common.Error404())
 	}
 
 }
-
-

@@ -9,8 +9,9 @@ import (
 )
 
 type Base interface {
-	Context(c *Context)
-	Instance() Base //确保每次请求，都开辟新的地址空间，避免多个请求共用一个
+	Context(c *Context) //传递请求上下文
+	Filter() (bool,string) //该方法在接口方法调用之前调用，用来过滤部分请求
+	Instance() Base //确保每次请求，都开辟新的地址空间，避免多个请求共用一个实例
 }
 
 /**
@@ -69,4 +70,8 @@ func (this *BaseController) Instance() Base {
 
 func (this *BaseController) Context(c *Context) {
 	this.Ctx = c
+}
+
+func (this *BaseController) Filter() (bool,string) {
+	return true,""
 }
