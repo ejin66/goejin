@@ -1,6 +1,6 @@
-# GoEjin
+# GoEjin -- A simple Web Framework in GOLANG
 
-A simple Web Framework in GOLANG
+
 
 The router rule is :
 
