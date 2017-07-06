@@ -12,8 +12,9 @@
 Controller.function(arg1,arg2,...)
 ```
 
-# How to user
+
+# Get it
 
 ```go 
-go get github.com/e
+go get github.com/ejin66/GoEjin
 ```
