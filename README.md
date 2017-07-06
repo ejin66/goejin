@@ -11,10 +11,3 @@
 ```go 
 Controller.function(arg1,arg2,...)
 ```
-
-
-# Get it
-
-```go 
-go get github.com/ejin66/GoEjin
-```
