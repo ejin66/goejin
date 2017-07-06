@@ -11,3 +11,9 @@
 ```go 
 Controller.function(arg1,arg2,...)
 ```
+
+# How to user
+
+```go 
+go get github.com/e
+```
