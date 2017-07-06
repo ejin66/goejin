@@ -1,7 +1,3 @@
-# GoEjin -- A simple Web Framework in GOLANG
-
-
-
 # Introduce
 
 It route the url like :
