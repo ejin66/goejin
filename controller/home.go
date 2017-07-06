@@ -2,8 +2,8 @@ package controller
 
 import (
 	"strconv"
-	"api/system/controller"
-	"api/db"
+	"GoEjin/system/controller"
+	"GoEjin/db"
 	"fmt"
 )
 

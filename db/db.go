@@ -3,11 +3,11 @@ package db
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
-	"api/config"
+	"GoEjin/config"
 	"strconv"
 	"errors"
 	"fmt"
-	"api/system/common"
+	"GoEjin/system/common"
 )
 
 var db *sql.DB

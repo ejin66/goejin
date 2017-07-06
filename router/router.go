@@ -1,8 +1,8 @@
 package router
 
 import (
-	sysController "api/system/controller"
-	"api/controller"
+	sysController "GoEjin/system/controller"
+	"GoEjin/controller"
 )
 
 /**

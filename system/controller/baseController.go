@@ -5,7 +5,7 @@ import (
 	"io"
 	"fmt"
 	"io/ioutil"
-	"api/system/common"
+	"GoEjin/system/common"
 )
 
 type Base interface {

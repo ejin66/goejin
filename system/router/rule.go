@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 	"reflect"
-	"api/config"
-	"api/router"
-	"api/system/common"
-	"api/system/controller"
+	"GoEjin/config"
+	"GoEjin/router"
+	"GoEjin/system/common"
+	"GoEjin/system/controller"
 )
 
 var routeMap map[string]controller.Cfg

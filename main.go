@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 	"fmt"
-	"api/config"
-	"api/system/router"
+	"GoEjin/config"
+	"GoEjin/system/router"
 )
 
 var ip string
