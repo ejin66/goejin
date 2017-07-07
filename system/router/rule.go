@@ -34,7 +34,8 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	//}()
 	uri := req.RequestURI
 
-	fmt.Print(req.Method, " ", uri, " ")
+
+	fmt.Print(req.Method, " ", req.Host, " ", uri, " ",req.RemoteAddr, " " )
 
 	if uri == "/" {
 		uri = config.HOME_URI
