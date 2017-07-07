@@ -1,15 +1,7 @@
 package main
 
-import (
-	"fmt"
-)
-type A struct {
-	i int
-	*B
-}
-type B struct {
-	j int
-}
+import "fmt"
+
 func main() {
 	//result := db.Query("user_info", nil)
 	//fmt.Println(result)
@@ -20,20 +12,16 @@ func main() {
 	//ok := db.Insert("user_info",db.Ipt{"user_name" : "hahaha" })
 	//fmt.Println(ok)
 
+	var i = 0
 
-	a := A{B:&B{}}
-	var b A
-	c := new(A)
+	for {
 
-	fmt.Printf("a:%p\n" , &a )
-	fmt.Printf("b:%p\n" , &b )
-	fmt.Printf("c:%p\n" , c )
+		if i == 10 {
+			break
+		}
 
-	fmt.Println(a,a.i,a.B.j)
-	fmt.Println(b,b.i,b.B.j)
-	fmt.Println(c,c.i,c.B.j)
-}
+		i++
+		fmt.Println("i:",i)
+	}
 
-func (this *A) do() {
-	fmt.Println("sssssssssssssssssssss")
 }

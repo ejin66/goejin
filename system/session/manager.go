@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"net/http"
 	"net/url"
-	"fmt"
 	"time"
 )
 
@@ -55,7 +54,6 @@ func (this *Manager) SessionStart(w *http.ResponseWriter, r *http.Request) (sess
 }
 
 func (this *Manager) GC() {
-	fmt.Print("  SESSION GC",this.maxLifetime)
 	this.lock.Lock()
 	defer this.lock.Unlock()
 	this.provider.SessionGC(this.maxLifetime)

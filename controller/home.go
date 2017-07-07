@@ -4,8 +4,6 @@ import (
 	"strconv"
 	"GoEjin/system/controller"
 	"GoEjin/db"
-	"GoEjin/system/session"
-	"fmt"
 )
 
 type HomeController struct {
@@ -19,8 +17,7 @@ type HomeController struct {
 /*              以下方法为自定义方法             */
 
 func (this *HomeController) Index() {
-	fmt.Println("index")
-	session.SessionManager.SessionStart(this.Ctx.W, this.Ctx.Req)
+	this.Ctx.SessionStart()
 	body := this.Ctx.Body()
 	this.Ctx.Response("index....." + body)
 }

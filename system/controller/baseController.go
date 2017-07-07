@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"GoEjin/system/common"
+	"GoEjin/system/session"
 )
 
 type Base interface {
@@ -59,6 +60,10 @@ func (this *Context) Body() string {
 		return ""
 	}
 	return string(body)
+}
+
+func (this *Context) SessionStart() session.Session {
+	return session.SessionManager.SessionStart(this.W, this.Req)
 }
 
 

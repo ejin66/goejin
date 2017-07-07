@@ -4,7 +4,6 @@ import (
 	"time"
 	"sync"
 	"container/list"
-	"fmt"
 	"errors"
 )
 
@@ -12,7 +11,6 @@ var mProvider = &MyProvider{sessions:make(map[string]*list.Element),list:list.Ne
 var SessionManager *Manager
 
 func init()  {
-	fmt.Println("SESSION INIT")
 	Register("memory", mProvider)
 	SessionManager,_  = NewManager("memory", "goejincookie",3600)
 	SessionManager.GC()
@@ -96,6 +94,8 @@ func (this *MyProvider) SessionGC(maxLifetime int64) {
 		if (element.Value.(*SessionStore).timeAccessed.Unix() + maxLifetime) < time.Now().Unix() {
 			this.list.Remove(element)
 			delete(this.sessions, element.Value.(*SessionStore).sid)
+		} else {
+			break
 		}
 	}
 }
