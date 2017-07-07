@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"GoEjin/config"
 	"GoEjin/system/router"
+	_ "GoEjin/system/session"
 )
 
 var ip string
