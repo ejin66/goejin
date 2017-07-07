@@ -4,7 +4,11 @@ import (
 	"fmt"
 )
 type A struct {
-
+	i int
+	*B
+}
+type B struct {
+	j int
 }
 func main() {
 	//result := db.Query("user_info", nil)
@@ -17,9 +21,17 @@ func main() {
 	//fmt.Println(ok)
 
 
-	a := A{}
-	a.do()
+	a := A{B:&B{}}
+	var b A
+	c := new(A)
 
+	fmt.Printf("a:%p\n" , &a )
+	fmt.Printf("b:%p\n" , &b )
+	fmt.Printf("c:%p\n" , c )
+
+	fmt.Println(a,a.i,a.B.j)
+	fmt.Println(b,b.i,b.B.j)
+	fmt.Println(c,c.i,c.B.j)
 }
 
 func (this *A) do() {

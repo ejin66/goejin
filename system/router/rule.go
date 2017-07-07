@@ -50,10 +50,8 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 
 func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 
-	//create new instance : a , and the pointer to it : b
-	a := reflect.ValueOf(cfg.Cb).Elem().Interface()
-	b := reflect.New(reflect.TypeOf(a)).Interface().(controller.Base)
-
+	//create new instance and the pointer to it : b
+	b := reflect.New(reflect.ValueOf(cfg.Cb).Elem().Type()).Interface().(controller.Base)
 	ctx := &controller.Context{w, req}
 	b.Context(ctx)
 
