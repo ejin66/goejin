@@ -3,15 +3,15 @@ package main
 import (
 	"net/http"
 	"fmt"
-	"GoEjin/config"
 	"GoEjin/system/router"
 	_ "GoEjin/system/session"
+	"GoEjin/system/config"
 )
 
 var ip string
 
 func init() {
-	ip = config.IP_ADDRESS + ":" + config.IP_PORT
+	ip = config.GetConfig().IP_ADDRESS + ":" + config.GetConfig().IP_PORT
 }
 
 func main() {

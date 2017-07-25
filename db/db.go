@@ -3,11 +3,11 @@ package db
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
-	"GoEjin/config"
 	"strconv"
 	"errors"
 	"fmt"
 	"GoEjin/system/common"
+	"GoEjin/system/config"
 )
 
 var db *sql.DB
@@ -19,7 +19,7 @@ key是数据库的column name , value是对应的值
 type Ipt map[string]interface{}
 
 func init() {
-	dataSourceName := config.DB_USER + ":" + config.DB_PASSWORD + "@tcp(localhost:" + config.DB_PORT + ")/" + config.DB_NAME + "?charset=utf8"
+	dataSourceName := config.GetConfig().DB_USER + ":" + config.GetConfig().DB_PASSWORD + "@tcp(localhost:" + config.GetConfig().DB_PORT + ")/" + config.GetConfig().DB_NAME + "?charset=utf8"
 	//fmt.Println(dataSourceName)
 	database, err := sql.Open("mysql", dataSourceName)
 

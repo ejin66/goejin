@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"strings"
 	"reflect"
-	"GoEjin/config"
 	"GoEjin/router"
 	"GoEjin/system/common"
 	"GoEjin/system/controller"
+	"GoEjin/system/config"
 )
 
 var routeMap map[string]controller.Cfg
@@ -25,20 +25,20 @@ func GetServeMux() *http.ServeMux {
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
-	//defer func() {
-	//	if err := recover(); err != nil {
-	//		//这里，主要是捕获调用函数参数不一致情况
-	//		common.PrintError(err)
-	//		io.WriteString(w, common.Error404())
-	//	}
-	//}()
+	defer func() {
+		if err := recover(); err != nil {
+			//这里，主要是捕获调用函数参数不一致情况
+			common.PrintError(err)
+			io.WriteString(w, common.Error404())
+		}
+	}()
 	uri := req.RequestURI
 
 
 	fmt.Print(req.Method, " ", req.Host, " ", uri, " ",req.RemoteAddr, " " )
 
 	if uri == "/" {
-		uri = config.HOME_URI
+		uri = "/" + config.GetConfig().DEFAULT_CONTROLLER
 	}
 	data := strings.Split(uri, "/")
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
