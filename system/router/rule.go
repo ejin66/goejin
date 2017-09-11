@@ -10,6 +10,7 @@ import (
 	"GoEjin/system/common"
 	"GoEjin/system/controller"
 	"GoEjin/system/config"
+	"strconv"
 )
 
 var routeMap map[string]controller.Cfg
@@ -25,13 +26,13 @@ func GetServeMux() *http.ServeMux {
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			//这里，主要是捕获调用函数参数不一致情况
-			common.PrintError(err)
-			io.WriteString(w, common.Error404())
-		}
-	}()
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		//这里，主要是捕获调用函数参数不一致情况
+	//		common.PrintError(err)
+	//		io.WriteString(w, common.Error404())
+	//	}
+	//}()
 	uri := req.RequestURI
 
 
@@ -43,6 +44,10 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	data := strings.Split(uri, "/")
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
 		parse(&v, data[2:], &w, req)
+	} else if len(data) == 2 {
+		//TODO 以后增加处理，如 /favicon.ico /sdsd.html 等等
+		common.PrintError("No router found")
+		io.WriteString(w, common.Error404())
 	} else {
 		common.PrintError("No router found")
 		io.WriteString(w, common.Error404())
@@ -51,9 +56,10 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 
 func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 
+	//New会创建一个指向值的pointer
 	//create new instance and the pointer to it : b
 	b := reflect.New(reflect.ValueOf(cfg.Cb).Elem().Type()).Interface().(controller.Base)
-	ctx := &controller.Context{w, req}
+	ctx := &controller.Context{W:w, Req:req}
 	b.Context(ctx)
 
 	//过滤部分请求
@@ -66,13 +72,7 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 	if len(data) == 0 {
 		data = append(data, "index")
 	}
-	var params []reflect.Value
-	if len(data) > 1 {
-		params = make([]reflect.Value, len(data)-1)
-		for i, _ := range params {
-			params[i] = reflect.ValueOf(data[i+1])
-		}
-	}
+
 	//将方法名转换成{首字母大写、其余小写}的形式
 	methodName := strings.ToUpper(string(data[0][0])) + strings.ToLower(string(data[0][1:]))
 
@@ -100,8 +100,27 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 	}
 
 	mMethod := reflect.ValueOf(b).MethodByName(methodName)
-
 	if mMethod.IsValid() {
+		var params []reflect.Value
+		if len(data) > 1 {
+			params = make([]reflect.Value, len(data)-1)
+			for i := range params {
+				switch mMethod.Type().In(i).Name() {
+				case "int":
+					if v,err := strconv.Atoi(data[i+1]); err == nil {
+						params[i] = reflect.ValueOf(v)
+					} else {
+						common.PrintError("Arguments Type is not match!")
+						io.WriteString(*w, common.Error404())
+						return
+					}
+				default:
+					params[i] = reflect.ValueOf(data[i+1])
+				}
+
+			}
+		}
+
 		mMethod.Call(params)
 		fmt.Println()
 	} else {

@@ -4,11 +4,21 @@ import (
 	"os"
 	"fmt"
 	"bytes"
+	"GoEjin/system/config"
 )
 
 func PrintError(msg interface{}) {
 	//其中0x1B是标记，[开始定义颜色，1代表高亮，39代表黑色背景，31代表红色前景，0代表恢复默认颜色。
 	fmt.Printf("%c[0;39;31m%s%s%c[0m\n", 0x1B ,"Error: " , msg, 0x1B)
+}
+
+func InArray(ary []string, v string) bool {
+	for _,item := range ary {
+		if item == v {
+			return true
+		}
+	}
+	return false
 }
 
 func Error404() string {
@@ -36,4 +46,23 @@ func Web(path string) string {
 		buf.Write(buffer[:i])
 	}
 	return buf.String()
+}
+
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
+
+func GetBaseUrl() string {
+	return config.GetConfig().BASE_URL
+}
+
+func GetUrl(path string) string {
+	return config.GetConfig().BASE_URL + path
 }

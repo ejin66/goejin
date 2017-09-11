@@ -5,12 +5,22 @@ import (
 	"database/sql"
 	"strconv"
 	"errors"
-	"fmt"
 	"GoEjin/system/common"
 	"GoEjin/system/config"
+	"reflect"
+	"fmt"
 )
 
 var db *sql.DB
+
+type sqlBuilder struct {
+	Sql string
+}
+
+type OrderBy struct {
+	Name        string
+	Orientation string
+}
 
 /*
 Ipt : input type
@@ -19,7 +29,7 @@ key是数据库的column name , value是对应的值
 type Ipt map[string]interface{}
 
 func init() {
-	dataSourceName := config.GetConfig().DB_USER + ":" + config.GetConfig().DB_PASSWORD + "@tcp(localhost:" + config.GetConfig().DB_PORT + ")/" + config.GetConfig().DB_NAME + "?charset=utf8"
+	dataSourceName := config.GetConfig().DB_USER + ":" + config.GetConfig().DB_PASSWORD + "@tcp(" + config.GetConfig().DB_ADDRESS + ":" + config.GetConfig().DB_PORT + ")/" + config.GetConfig().DB_NAME + "?charset=utf8"
 	//fmt.Println(dataSourceName)
 	database, err := sql.Open("mysql", dataSourceName)
 
@@ -30,6 +40,10 @@ func init() {
 	}
 }
 
+func Builder() *sqlBuilder{
+	return new(sqlBuilder)
+}
+
 func valueFormat(value interface{}) (string, error) {
 	var result string
 	switch value.(type) {
@@ -37,10 +51,32 @@ func valueFormat(value interface{}) (string, error) {
 		result = strconv.Itoa(value.(int))
 	case string:
 		result = "'" + value.(string) + "'"
+	case bool:
+		if value.(bool) {
+			result = "1"
+		} else {
+			result = "0"
+		}
 	default:
 		return "", errors.New("can't recognize condition value type")
 	}
 	return result, nil
+}
+
+func valueFormat2(typeName string, value string) (result interface{}) {
+	switch typeName {
+	case "int":
+		result, _ = strconv.Atoi(value)
+	case "bool":
+		if value == "1" {
+			result = true
+		} else {
+			result = false
+		}
+	default:
+		result = value
+	}
+	return
 }
 
 func concatWhereCondition(condition Ipt, conditionState ...string) (string, error) {
@@ -50,7 +86,7 @@ func concatWhereCondition(condition Ipt, conditionState ...string) (string, erro
 		if err != nil {
 			return "", err
 		}
-		where += " AND " + key + " = " + result
+		where += " AND `" + key + "` = " + result
 	}
 
 	for _, item := range conditionState {
@@ -59,8 +95,7 @@ func concatWhereCondition(condition Ipt, conditionState ...string) (string, erro
 	return where, nil
 }
 
-func Query(table string, condition Ipt, conditionState ...string) []map[string]string {
-
+func (this *sqlBuilder) Create(table string, condition Ipt, conditionState ...string) (*sqlBuilder) {
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
@@ -69,9 +104,83 @@ func Query(table string, condition Ipt, conditionState ...string) []map[string]s
 	}
 
 	sql := "SELECT * FROM " + table + " WHERE  1 = 1 " + where
+	this.Sql = sql
+	return this
+}
 
-	//fmt.Println(sql)
+func (this *sqlBuilder) OrderBy(orders ...OrderBy) *sqlBuilder {
+	sql := this.Sql + " ORDER BY "
+	for _, item := range orders {
+		sql += item.Name + " " + item.Orientation + ","
+	}
+	this.Sql = sql[0:len(sql)-1]
+	return this
+}
 
+func (this *sqlBuilder) Limit(count int) *sqlBuilder {
+	this.Sql += " LIMIT " + strconv.Itoa(count)
+	return this
+}
+
+func (this *sqlBuilder) Limit2(start int, count int) *sqlBuilder {
+	this.Sql += " LIMIT " + strconv.Itoa(start) + "," + strconv.Itoa(count)
+	return this
+}
+
+func (this *sqlBuilder) SetSql(sql string) *sqlBuilder {
+	this.Sql = sql
+	return this
+}
+
+func (this *sqlBuilder) BuildSingle(model interface{}) error {
+	fmt.Println(this.Sql)
+	results := Query(this.Sql)
+	if len(results) != 1 {
+		return errors.New("query result size is not single!")
+	}
+	modelType := reflect.TypeOf(model)
+	elements := modelType.Elem()
+
+	for j := 0; j < elements.NumField(); j++ {
+		field := elements.Field(j)
+		if field.Tag.Get("db") == "" {
+			continue
+		}
+		if _,ok := results[0][field.Tag.Get("db")]; !ok {
+			continue
+		}
+		reflect.ValueOf(model).Elem().FieldByName(field.Name).Set(reflect.ValueOf(valueFormat2(field.Type.Name(),
+			results[0][field.Tag.Get("db")])))
+	}
+	return nil
+}
+
+func (this *sqlBuilder) Build(model interface{}) []interface{} {
+	fmt.Println(this.Sql)
+	results := Query(this.Sql)
+	modelType := reflect.TypeOf(model)
+	elements := modelType.Elem()
+
+	modelList := make([]interface{}, len(results))
+
+	for i, result := range results {
+		modelTemp := reflect.New(reflect.ValueOf(model).Elem().Type())
+		for j := 0; j < elements.NumField(); j++ {
+			field := elements.Field(j)
+			if field.Tag.Get("db") == "" {
+				continue
+			}
+			if _,ok := result[field.Tag.Get("db")]; !ok {
+				continue
+			}
+			modelTemp.Elem().FieldByName(field.Name).Set(reflect.ValueOf(valueFormat2(field.Type.Name(), result[field.Tag.Get("db")])))
+		}
+		modelList[i] = modelTemp.Interface()
+	}
+	return modelList
+}
+
+func Query(sql string) []map[string]string {
 	rows, err := db.Query(sql)
 
 	if err != nil {
@@ -90,7 +199,6 @@ func Query(table string, condition Ipt, conditionState ...string) []map[string]s
 	var results []map[string]string
 
 	for rows.Next() {
-
 		err = rows.Scan(scanArgs...)
 		record := make(map[string]string)
 		for i, v := range values {
@@ -122,7 +230,7 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	return true
 }
 
-func Update(table string, update Ipt, condition Ipt, conditionState ...string) bool {
+func Update(table string, model interface{}, escapeColumns []string, condition Ipt, conditionState ...string) bool {
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
@@ -131,15 +239,19 @@ func Update(table string, update Ipt, condition Ipt, conditionState ...string) b
 	}
 
 	var updateStatement string
-	for k, v := range update {
-		result, err2 := valueFormat(v)
-
-		if err2 != nil {
-			common.PrintError(err2)
-			return false
+	elements := reflect.TypeOf(model).Elem()
+	modelValue := reflect.ValueOf(model).Elem()
+	for i := 0 ; i < elements.NumField() ; i++ {
+		key := elements.Field(i).Tag.Get("db")
+		value := modelValue.Field(i).Interface()
+		result, err := valueFormat(value)
+		if err != nil {
+			continue
 		}
-
-		updateStatement += ", " + k + " = " + result
+		if common.InArray(escapeColumns, key) {
+			continue
+		}
+		updateStatement += ", `" + key + "` = " + result
 	}
 
 	updateStatement = string(updateStatement[1:])
@@ -157,18 +269,23 @@ func Update(table string, update Ipt, condition Ipt, conditionState ...string) b
 	return true
 }
 
-func Insert(table string, insert Ipt) int64 {
+func Insert(table string, model interface{}, escapeColumns []string) int64 {
 
 	var columns string
 	var values string
-
-	for k, v := range insert {
-		result, err := valueFormat(v)
+	elements := reflect.TypeOf(model).Elem()
+	modelValue := reflect.ValueOf(model).Elem()
+	for i := 0 ; i < elements.NumField() ; i++ {
+		key := elements.Field(i).Tag.Get("db")
+		value := modelValue.Field(i).Interface()
+		result, err := valueFormat(value)
 		if err != nil {
-			common.PrintError(err)
-			return -1
+			continue
 		}
-		columns += "," + k
+		if common.InArray(escapeColumns, key) {
+			continue
+		}
+		columns += ",`" + key + "`"
 		values += "," + result
 	}
 

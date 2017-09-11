@@ -7,11 +7,13 @@ import (
 	"io/ioutil"
 	"GoEjin/system/common"
 	"GoEjin/system/session"
+	"encoding/json"
+	"errors"
 )
 
 type Base interface {
-	Context(c *Context) //传递请求上下文
-	Filter() (bool,string) //该方法在接口方法调用之前调用，用来过滤部分请求
+	Context(c *Context)     //传递请求上下文
+	Filter() (bool, string) //该方法在接口方法调用之前调用，用来过滤部分请求
 }
 
 /**
@@ -20,33 +22,92 @@ Method : default controller request method. if "",means no limit for method
 Methods : controller functions exact request method. if "",means no limit for method
  */
 type Cfg struct {
-	Cb Base
+	Cb            Base
 	DefaultMethod string
-	Methods MethodMap
+	Methods       MethodMap
 }
 
 type MethodMap map[string]string
 
 type Router map[string]Cfg
 
-
-
 type Context struct {
-	W   *http.ResponseWriter
-	Req *http.Request
+	W        *http.ResponseWriter
+	Req      *http.Request
+	postJson *map[string]interface{}
 }
 
 func (this *Context) Response(msg string) {
 	io.WriteString(*(this.W), msg)
 }
 
+func (this *Context) AddHeader(key, value string) {
+	(*this.W).Header().Add(key, value)
+}
+
+func (this *Context) setStatusCode(code int) {
+	(*this.W).WriteHeader(code)
+}
+
 /*
 获取post参数
  */
-func (this *Context) Fetch(key string) string {
+func (this *Context) FetchForm(key string) string {
 	fmt.Println(key, this.Req.PostFormValue(key))
-	//body, _ := ioutil.ReadAll(this.Req.Body)
 	return this.Req.PostFormValue(key)
+}
+
+func (this *Context) FetchBodyAsJson() string {
+	body, _ := ioutil.ReadAll(this.Req.Body)
+	return string(body)
+}
+
+/**
+pointer
+ */
+func (this *Context) FetchBodyAs(i interface{}) {
+	body, _ := ioutil.ReadAll(this.Req.Body)
+	json.Unmarshal(body, i)
+}
+
+func (this *Context) FetchJson(key string) (interface{}, error) {
+	if len(*this.postJson) == 0 {
+		body, _ := ioutil.ReadAll(this.Req.Body)
+		json.Unmarshal(body, this.postJson)
+	}
+	if _, ok := (*this.postJson)[key]; !ok {
+		return nil, errors.New("can't find key " + key)
+	}
+	return (*this.postJson)[key], nil
+}
+
+func (this *Context) FetchJsonInt(key string) (returnValue int, returnError error) {
+	defer func() {
+		if err := recover(); err != nil {
+			common.PrintError(err)
+			returnError = errors.New("value type is not int")
+		}
+	}()
+	v, err := this.FetchJson(key)
+	if err == nil {
+		returnValue = int(v.(float64))
+	}
+	returnError = err
+	return
+}
+
+func (this *Context) FetchJsonString(key string) (returnValue string, returnError error) {
+	defer func() {
+		if err := recover(); err != nil {
+			returnError = errors.New("value type is not string")
+		}
+	}()
+	v, err := this.FetchJson(key)
+	if err == nil {
+		returnValue = v.(string)
+	}
+	returnError = err
+	return
 }
 
 /*
@@ -66,17 +127,16 @@ func (this *Context) SessionStart() session.Session {
 	return session.SessionManager.SessionStart(this.W, this.Req)
 }
 
-
-
-
 type BaseController struct {
 	Ctx *Context
 }
 
 func (this *BaseController) Context(c *Context) {
 	this.Ctx = c
+	json := make(map[string]interface{})
+	c.postJson = &json
 }
 
-func (this *BaseController) Filter() (bool,string) {
-	return true,""
+func (this *BaseController) Filter() (bool, string) {
+	return true, ""
 }

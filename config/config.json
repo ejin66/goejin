@@ -3,8 +3,9 @@
   "IP_PORT" : "80",
   "DB_USER" : "root",
   "DB_PASSWORD" : "123456",
+  "DB_ADDRESS" : "localhost",
   "DB_PORT" : "3306",
-  "DB_NAME" : "test",
-  "DEFAULT_CONTROLLER" : "home",
-  "IMAGE_PATH": "/image"
+  "DB_NAME" : "dbname",
+  "DEFAULT_CONTROLLER" : "home"
+  "BASE_URL":"http://ejin/"
 }
