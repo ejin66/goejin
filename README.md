@@ -21,8 +21,11 @@ Controller.function(arg1,arg2,...)
 var RouteTable = sysController.Router{
 	"HOME": sysController.Cfg{&controller.HomeController{}, "", sysController.MethodMap{ "Index":"GET"}}
 }
+//  .../HOME/index  --> HomeController的index方法
+//  且必须 request method 限制为GET
 ```
-.../HOME/index 地址将会调用controller文件夹下HomeController的index方法
+
 其中， key值是url中的controller名， value值：第一个参是新建的controller实例指针； 第二个参是默认方法 POST/GET/"" ,代表默认请求方法,空字符串是无限制；第三个参 是限制特定方法的请求。
+
 
 以上
