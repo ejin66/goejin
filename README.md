@@ -14,9 +14,9 @@ Controller.function(arg1,arg2,...)
 
 # How To Use
 
-1. 配置参数。在config/config.json中配置，如ip,port,db相关参数等等
-2. 新建controller。 在controller/下创建一个内嵌有controller.BaseController的struct, 参照controller/home.go中的HomeController
-3. 配置Router。在router/router.go中，配置路由规则，如：
+**1. 配置参数。在config/config.json中配置，如ip,port,db相关参数等等**
+**2. 新建controller。 在controller/下创建一个内嵌有controller.BaseController的struct, 参照controller/home.go中的HomeController**
+**3. 配置Router。在router/router.go中，配置路由规则，如：**
 ```go
 var RouteTable = sysController.Router{
 	"HOME": sysController.Cfg{&controller.HomeController{}, "", sysController.MethodMap{ "Index":"GET"}}
