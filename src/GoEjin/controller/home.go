@@ -2,10 +2,6 @@ package controller
 
 import (
 	"GoEjin/system/controller"
-	"GoEjin/db"
-	"GoEjin/model"
-	"GoEjin/util"
-	"GoEjin/system/common"
 )
 
 type HomeController struct {

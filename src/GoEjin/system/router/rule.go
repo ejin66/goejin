@@ -26,13 +26,13 @@ func GetServeMux() *http.ServeMux {
 }
 
 func defaultHandler(w http.ResponseWriter, req *http.Request) {
-	defer func() {
-		if err := recover(); err != nil {
-			//这里，主要是捕获调用函数参数不一致情况
-			common.PrintError(err)
-			io.WriteString(w, common.Error404())
-		}
-	}()
+	//defer func() {
+	//	if err := recover(); err != nil {
+	//		//这里，主要是捕获调用函数参数不一致情况
+	//		common.PrintError(err)
+	//		io.WriteString(w, common.Error404())
+	//	}
+	//}()
 	uri := req.RequestURI
 
 
