@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/GoEjin.iml" filepath="$PROJECT_DIR$/.idea/GoEjin.iml" />
-      <module fileurl="file://D:\git\GoEjin\.idea\goejin.iml" filepath="D:\git\GoEjin\.idea\goejin.iml" />
-    </modules>
-  </component>
-</project>
