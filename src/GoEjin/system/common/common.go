@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"bytes"
 	"GoEjin/system/config"
+	"GoEjin/util"
 )
 
 func PrintError(msg interface{}) {
@@ -22,19 +23,24 @@ func InArray(ary []string, v string) bool {
 }
 
 func Error404() string {
-	return "404 not found"
+	return util.Error(404, "404 not found")
+}
+
+func Error404Web() string {
+	return "404 no found"
 }
 
 func Web(path string) string {
-	file, err := os.OpenFile("web/"+path, os.O_RDONLY, os.ModePerm)
+	fmt.Print("src/web/"+path)
+	file, err := os.OpenFile("src/web/"+path, os.O_RDONLY, os.ModePerm)
 	defer file.Close()
 	if err != nil {
 		fmt.Println("open web page err:", err.Error())
-		return Error404()
+		return Error404Web()
 	}
 	buf := bytes.NewBufferString("")
 	for {
-		var buffer []byte = make([]byte, 1024*10)
+		var buffer = make([]byte, 1024*10)
 		i, err := file.Read(buffer)
 		if i <= 0 {
 			break
