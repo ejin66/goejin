@@ -9,7 +9,6 @@ import (
 	"GoEjin/router"
 	"GoEjin/system/common"
 	"GoEjin/system/controller"
-	"GoEjin/system/config"
 	"strconv"
 )
 
@@ -39,18 +38,17 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Print(req.Method, " ", req.Host, " ", uri, " ",req.RemoteAddr, " " )
 
 	if uri == "/" {
-		uri = "/" + config.GetConfig().DEFAULT_CONTROLLER
+		io.WriteString(w, common.Web("index.html"))
+		return
 	}
+
 	data := strings.Split(uri, "/")
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
 		parse(&v, data[2:], &w, req)
-	} else if len(data) == 2 {
-		//TODO 以后增加处理，如 /favicon.ico /sdsd.html 等等
-		common.PrintError("No router found")
-		io.WriteString(w, common.Error404())
-	} else {
-		common.PrintError("No router found")
-		io.WriteString(w, common.Error404())
+	}else {
+		//try to load static resources in src/web/
+		common.PrintError("No router found, try to load static resource")
+		io.WriteString(w, common.Web(uri[1:]))
 	}
 }
 
