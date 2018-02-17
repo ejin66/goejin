@@ -6,6 +6,5 @@
   "DB_ADDRESS" : "localhost",
   "DB_PORT" : "3306",
   "DB_NAME" : "dbname",
-  "DEFAULT_CONTROLLER" : "home",
   "BASE_URL":"http://ejin/"
 }
