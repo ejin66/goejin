@@ -1,23 +1,23 @@
 package config
 
 import (
-	"os"
-	"log"
 	"encoding/json"
+	"log"
+	"os"
 )
 
 type Config struct {
-	IP_ADDRESS string
-	IP_PORT string
-	DB_USER string
-	DB_PASSWORD string
-	DB_ADDRESS string
-	DB_PORT string
-	DB_NAME string
+	IP_ADDRESS         string
+	IP_PORT            string
+	DB_USER            string
+	DB_PASSWORD        string
+	DB_ADDRESS         string
+	DB_PORT            string
+	DB_NAME            string
 	DEFAULT_CONTROLLER string
-	IMAGE_PATH string
-	DOWNLOAD_PATH string
-	BASE_URL string
+	IMAGE_PATH         string
+	DOWNLOAD_PATH      string
+	BASE_URL           string
 }
 
 //生成一个全局的conf变量存储读取的配置
@@ -32,7 +32,7 @@ func GetConfig() *Config {
 }
 
 //读取配置函数
-func LoadConf(){
+func LoadConf() {
 	//打开文件
 	r, err := os.Open("src/GoEjin/config/config.json")
 	if err != nil {

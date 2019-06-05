@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net/http"
-	"fmt"
+	"GoEjin/system/config"
 	"GoEjin/system/router"
 	_ "GoEjin/system/session"
-	"GoEjin/system/config"
+	"fmt"
+	"net/http"
 )
 
 var ip string
@@ -16,9 +16,8 @@ func init() {
 
 func main() {
 	fmt.Println("Server listen on ", ip)
-	err := http.ListenAndServe(ip ,router.GetServeMux())
+	err := http.ListenAndServe(ip, router.GetServeMux())
 	if err != nil {
-		fmt.Println("server listen err:",err.Error())
+		fmt.Println("server listen err:", err.Error())
 	}
 }
-
