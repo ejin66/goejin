@@ -17,7 +17,9 @@ func LoadRouter(table Router) {
 		return
 	}
 
-	routeMap = table
+	for k, v := range table {
+		routeMap[strings.ToUpper(k)] = v
+	}
 }
 
 func GetServeMux() *http.ServeMux {
@@ -44,6 +46,7 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	data := strings.Split(uri, "/")
+
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
 		parse(&v, data[2:], &w, req)
 	} else {
