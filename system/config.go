@@ -15,6 +15,7 @@ type Config struct {
 	DbAddress  string
 	DbPort     string
 	DbName     string
+	WebPath    string //web source path
 }
 
 //生成一个全局的conf变量存储读取的配置

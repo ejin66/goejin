@@ -41,7 +41,7 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	fmt.Print(req.Method, " ", req.Host, " ", uri, " ", req.RemoteAddr, " ")
 
 	if uri == "/" {
-		io.WriteString(w, util.Web("index.html"))
+		io.WriteString(w, web("index.html"))
 		return
 	}
 
@@ -52,7 +52,7 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	} else {
 		//try to load static resources in src/web/
 		util.PrintError("No router found, try to load static resource")
-		io.WriteString(w, util.Web(uri[1:]))
+		io.WriteString(w, web(uri[1:]))
 	}
 }
 

@@ -1,7 +1,6 @@
 package util
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"regexp"
@@ -39,31 +38,6 @@ func Error404() string {
 
 func Error404Web() string {
 	return "404 no found"
-}
-
-func Web(path string) string {
-	//TODO path的位置
-	fmt.Print("src/web/" + path)
-	file, err := os.OpenFile("src/web/"+path, os.O_RDONLY, os.ModePerm)
-	defer file.Close()
-	if err != nil {
-		fmt.Println("open web page err:", err.Error())
-		return Error404Web()
-	}
-	buf := bytes.NewBufferString("")
-	for {
-		var buffer = make([]byte, 1024*10)
-		i, err := file.Read(buffer)
-		if i <= 0 {
-			break
-		}
-		if err != nil {
-			fmt.Println("read web page err:", err.Error(), i)
-			break
-		}
-		buf.Write(buffer[:i])
-	}
-	return buf.String()
 }
 
 func PathExists(path string) (bool, error) {
