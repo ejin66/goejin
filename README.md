@@ -23,10 +23,10 @@ go get github.com/go-sql-driver/mysql
 ```
 
 ### 2. 配置参数
-创建config.json，设置ip,port,db等参数，参考example/config.json.
+创建config.json，设置ip,port,db等参数，参考[example/config.json](https://github.com/ejin66/goejin/blob/master/example/config.json).
 
 ### 3. 新建controller
-创建一个内嵌有system.BaseController的struct, 参照example/homeController.go中的HomeController:
+创建一个内嵌有system.BaseController的struct, 参照[example/home.go](https://github.com/ejin66/goejin/blob/master/example/home.go)中的HomeController:
 
 ```go
 type HomeController struct {
@@ -35,11 +35,11 @@ type HomeController struct {
 ```
 
 ### 4. 配置Router
-在router/router.go中，配置路由规则，如：
+配置路由规则，如：
 
 ```go
 var RouteTable = sysController.Router{
-	"home": sysController.Cfg{&controller.HomeController{}, "", sysController.MethodMap{ "Index":"GET"}}
+	"home": sysController.Cfg{&controller.HomeController{}, "", sysController.MethodMap{ "Index":"GET"}},
 }
 //  .../home/index  --> HomeController的index方法
 //  且必须 request method 限制为GET
@@ -47,6 +47,12 @@ var RouteTable = sysController.Router{
 
 其中， key值是url中的controller名， value值：第一个参是新建的controller实例指针； 第二个参是默认方法 POST/GET/"" ,代表默认请求方法,空字符串是无限制；第三个参 是限制特定方法的请求。
 
+### 5. 运行
+```go
+//第一个参数： 第二步中创建的config.json路径
+//第二个参数： 第四步中配置的路由
+goejin.Listen("./config.json", RouteTable)
+```
 
 # Example
 框架中有example代码，可以直接跑起来看效果。
@@ -58,4 +64,5 @@ go run ./
 接着，访问：
 - `http://localhost/home/index`
 - `http://localhost/`
+
 可查看效果。
