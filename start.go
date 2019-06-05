@@ -4,8 +4,8 @@ package goejin
 
 import (
 	"fmt"
-	"goejin/system"
-	"goejin/util"
+	"github.com/ejin66/goejin/system"
+	"github.com/ejin66/goejin/util"
 	"net/http"
 )
 

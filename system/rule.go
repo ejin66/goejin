@@ -2,7 +2,7 @@ package system
 
 import (
 	"fmt"
-	"goejin/util"
+	"github.com/ejin66/goejin/util"
 	"io"
 	"net/http"
 	"reflect"

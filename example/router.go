@@ -1,7 +1,7 @@
 package main
 
 import (
-	sysController "goejin/system"
+	sysController "github.com/ejin66/goejin/system"
 )
 
 /**

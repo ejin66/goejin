@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goejin/system"
+	"github.com/ejin66/goejin/system"
 )
 
 type HomeController struct {
