@@ -4,8 +4,8 @@ import (
 	"os"
 	"fmt"
 	"bytes"
-	"GoEjin/system/config"
-	"GoEjin/util"
+	"system/config"
+	"util"
 )
 
 func PrintError(msg interface{}) {
