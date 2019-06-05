@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var routeMap map[string]Cfg
+var routeMap = make(map[string]Cfg)
 
 func LoadRouter(table Router) {
 	if table == nil {
