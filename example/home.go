@@ -1,11 +1,11 @@
-package controller
+package main
 
 import (
-	"GoEjin/system/controller"
+	"goejin/system"
 )
 
 type HomeController struct {
-	controller.BaseController
+	system.BaseController
 }
 
 func (this *HomeController) Filter() (bool, string) {

@@ -1,21 +1,23 @@
-package router
+package system
 
 import (
-	"net/http"
-	"io"
 	"fmt"
-	"strings"
+	"goejin/util"
+	"io"
+	"net/http"
 	"reflect"
-	"GoEjin/router"
-	"GoEjin/system/common"
-	"GoEjin/system/controller"
 	"strconv"
+	"strings"
 )
 
-var routeMap map[string]controller.Cfg
+var routeMap map[string]Cfg
 
-func init() {
-	routeMap = router.RouteTable
+func LoadRouter(table Router) {
+	if table == nil {
+		return
+	}
+
+	routeMap = table
 }
 
 func GetServeMux() *http.ServeMux {
@@ -28,41 +30,40 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 	defer func() {
 		if err := recover(); err != nil {
 			//这里，主要是捕获调用函数参数不一致情况
-			common.PrintError(err)
-			io.WriteString(w, common.Error404())
+			util.PrintError(err)
+			io.WriteString(w, util.Error404())
 		}
 	}()
 	uri := req.RequestURI
 
-
-	fmt.Print(req.Method, " ", req.Host, " ", uri, " ",req.RemoteAddr, " " )
+	fmt.Print(req.Method, " ", req.Host, " ", uri, " ", req.RemoteAddr, " ")
 
 	if uri == "/" {
-		io.WriteString(w, common.Web("index.html"))
+		io.WriteString(w, util.Web("index.html"))
 		return
 	}
 
 	data := strings.Split(uri, "/")
 	if v, ok := routeMap[strings.ToUpper(data[1])]; ok {
 		parse(&v, data[2:], &w, req)
-	}else {
+	} else {
 		//try to load static resources in src/web/
-		common.PrintError("No router found, try to load static resource")
-		io.WriteString(w, common.Web(uri[1:]))
+		util.PrintError("No router found, try to load static resource")
+		io.WriteString(w, util.Web(uri[1:]))
 	}
 }
 
-func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
+func parse(cfg *Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 
 	//New会创建一个指向值的pointer
 	//create new instance and the pointer to it : b
-	b := reflect.New(reflect.ValueOf(cfg.Cb).Elem().Type()).Interface().(controller.Base)
-	ctx := &controller.Context{W:w, Req:req}
+	b := reflect.New(reflect.ValueOf(cfg.Cb).Elem().Type()).Interface().(Base)
+	ctx := &Context{W: w, Req: req}
 	b.Context(ctx)
 
 	//过滤部分请求
 	if ok, errMsg := b.Filter(); !ok {
-		common.PrintError("Filter out")
+		util.PrintError("Filter out")
 		io.WriteString(*w, errMsg)
 		return
 	}
@@ -76,8 +77,8 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 
 	//某些内置方法，这里做特殊判断
 	if methodName == "Filter" || methodName == "Context" {
-		common.PrintError("Build-in method")
-		io.WriteString(*w, common.Error404())
+		util.PrintError("Build-in method")
+		io.WriteString(*w, util.Error404())
 		return
 	}
 
@@ -92,8 +93,8 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 
 	//若请求方法不一致，直接抛出error
 	if requestMethod != "" && requestMethod != req.Method {
-		common.PrintError("Request method mismatching")
-		io.WriteString(*w, common.Error404())
+		util.PrintError("Request method mismatching")
+		io.WriteString(*w, util.Error404())
 		return
 	}
 
@@ -105,11 +106,11 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 			for i := range params {
 				switch mMethod.Type().In(i).Name() {
 				case "int":
-					if v,err := strconv.Atoi(data[i+1]); err == nil {
+					if v, err := strconv.Atoi(data[i+1]); err == nil {
 						params[i] = reflect.ValueOf(v)
 					} else {
-						common.PrintError("Arguments Type is not match!")
-						io.WriteString(*w, common.Error404())
+						util.PrintError("Arguments Type is not match!")
+						io.WriteString(*w, util.Error404())
 						return
 					}
 				default:
@@ -122,8 +123,8 @@ func parse(cfg *controller.Cfg, data []string, w *http.ResponseWriter, req *http
 		mMethod.Call(params)
 		fmt.Println()
 	} else {
-		common.PrintError("Not found method in controller")
-		io.WriteString(*w, common.Error404())
+		util.PrintError("Not found method in controller")
+		io.WriteString(*w, util.Error404())
 	}
 
 }

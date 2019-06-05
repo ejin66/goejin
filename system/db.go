@@ -1,17 +1,19 @@
-package db
+package system
 
 import (
-	_ "github.com/go-sql-driver/mysql"
 	"database/sql"
-	"strconv"
 	"errors"
-	"GoEjin/system/common"
-	"GoEjin/system/config"
-	"reflect"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
+	"goejin/util"
+	"reflect"
+	"strconv"
+	"sync"
 )
 
 var db *sql.DB
+
+var dbLock sync.Mutex
 
 type sqlBuilder struct {
 	Sql string
@@ -25,22 +27,10 @@ type OrderBy struct {
 /*
 Ipt : input type
 key是数据库的column name , value是对应的值
- */
+*/
 type Ipt map[string]interface{}
 
-func init() {
-	dataSourceName := config.GetConfig().DB_USER + ":" + config.GetConfig().DB_PASSWORD + "@tcp(" + config.GetConfig().DB_ADDRESS + ":" + config.GetConfig().DB_PORT + ")/" + config.GetConfig().DB_NAME + "?charset=utf8"
-	//fmt.Println(dataSourceName)
-	database, err := sql.Open("mysql", dataSourceName)
-
-	if err != nil {
-		common.PrintError(err)
-	} else {
-		db = database
-	}
-}
-
-func Builder() *sqlBuilder{
+func Builder() *sqlBuilder {
 	return new(sqlBuilder)
 }
 
@@ -95,11 +85,11 @@ func concatWhereCondition(condition Ipt, conditionState ...string) (string, erro
 	return where, nil
 }
 
-func (this *sqlBuilder) Create(table string, condition Ipt, conditionState ...string) (*sqlBuilder) {
+func (this *sqlBuilder) Create(table string, condition Ipt, conditionState ...string) *sqlBuilder {
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
-		common.PrintError(err)
+		util.PrintError(err)
 		return nil
 	}
 
@@ -113,7 +103,7 @@ func (this *sqlBuilder) OrderBy(orders ...OrderBy) *sqlBuilder {
 	for _, item := range orders {
 		sql += item.Name + " " + item.Orientation + ","
 	}
-	this.Sql = sql[0:len(sql)-1]
+	this.Sql = sql[0 : len(sql)-1]
 	return this
 }
 
@@ -146,7 +136,7 @@ func (this *sqlBuilder) BuildSingle(model interface{}) error {
 		if field.Tag.Get("db") == "" {
 			continue
 		}
-		if _,ok := results[0][field.Tag.Get("db")]; !ok {
+		if _, ok := results[0][field.Tag.Get("db")]; !ok {
 			continue
 		}
 		reflect.ValueOf(model).Elem().FieldByName(field.Name).Set(reflect.ValueOf(valueFormat2(field.Type.Name(),
@@ -170,7 +160,7 @@ func (this *sqlBuilder) Build(model interface{}) []interface{} {
 			if field.Tag.Get("db") == "" {
 				continue
 			}
-			if _,ok := result[field.Tag.Get("db")]; !ok {
+			if _, ok := result[field.Tag.Get("db")]; !ok {
 				continue
 			}
 			modelTemp.Elem().FieldByName(field.Name).Set(reflect.ValueOf(valueFormat2(field.Type.Name(), result[field.Tag.Get("db")])))
@@ -181,10 +171,10 @@ func (this *sqlBuilder) Build(model interface{}) []interface{} {
 }
 
 func Query(sql string) []map[string]string {
-	rows, err := db.Query(sql)
+	rows, err := getDB().Query(sql)
 
 	if err != nil {
-		common.PrintError(err)
+		util.PrintError(err)
 		return []map[string]string{}
 	}
 
@@ -215,16 +205,16 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
-		common.PrintError(err)
+		util.PrintError(err)
 		return false
 	}
 
 	sql := "DELETE FROM " + table + " WHERE 1 = 1 " + where
 	fmt.Println(sql)
-	_, err2 := db.Exec(sql)
+	_, err2 := getDB().Exec(sql)
 
 	if err2 != nil {
-		common.PrintError(err2)
+		util.PrintError(err2)
 		return false
 	}
 	return true
@@ -234,21 +224,21 @@ func Update(table string, model interface{}, escapeColumns []string, condition I
 	where, err := concatWhereCondition(condition, conditionState...)
 
 	if err != nil {
-		common.PrintError(err)
+		util.PrintError(err)
 		return false
 	}
 
 	var updateStatement string
 	elements := reflect.TypeOf(model).Elem()
 	modelValue := reflect.ValueOf(model).Elem()
-	for i := 0 ; i < elements.NumField() ; i++ {
+	for i := 0; i < elements.NumField(); i++ {
 		key := elements.Field(i).Tag.Get("db")
 		value := modelValue.Field(i).Interface()
 		result, err := valueFormat(value)
 		if err != nil {
 			continue
 		}
-		if common.InArray(escapeColumns, key) {
+		if util.InArray(escapeColumns, key) {
 			continue
 		}
 		updateStatement += ", `" + key + "` = " + result
@@ -260,10 +250,10 @@ func Update(table string, model interface{}, escapeColumns []string, condition I
 
 	fmt.Println(sql)
 
-	_, err3 := db.Exec(sql)
+	_, err3 := getDB().Exec(sql)
 
 	if err3 != nil {
-		common.PrintError(err3)
+		util.PrintError(err3)
 		return false
 	}
 	return true
@@ -275,14 +265,14 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 	var values string
 	elements := reflect.TypeOf(model).Elem()
 	modelValue := reflect.ValueOf(model).Elem()
-	for i := 0 ; i < elements.NumField() ; i++ {
+	for i := 0; i < elements.NumField(); i++ {
 		key := elements.Field(i).Tag.Get("db")
 		value := modelValue.Field(i).Interface()
 		result, err := valueFormat(value)
 		if err != nil {
 			continue
 		}
-		if common.InArray(escapeColumns, key) {
+		if util.InArray(escapeColumns, key) {
 			continue
 		}
 		columns += ",`" + key + "`"
@@ -295,13 +285,36 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 	sql := "INSERT INTO " + table + "(" + columns + ") VALUES" + "(" + values + ")"
 	fmt.Println(sql)
 
-	result, err2 := db.Exec(sql)
+	result, err2 := getDB().Exec(sql)
 
 	if err2 != nil {
-		common.PrintError(err2)
+		util.PrintError(err2)
 		return -1
 	}
 	i, _ := result.LastInsertId()
 	return i
 
+}
+
+func connect() {
+	dataSourceName := GetConfig().DbUser + ":" + GetConfig().DbPassword + "@tcp(" + GetConfig().DbAddress + ":" + GetConfig().DbPort + ")/" + GetConfig().DbName + "?charset=utf8"
+	//fmt.Println(dataSourceName)
+	database, err := sql.Open("mysql", dataSourceName)
+
+	if err != nil {
+		util.PrintError(err)
+	} else {
+		db = database
+	}
+}
+
+func getDB() *sql.DB {
+	if db == nil {
+		dbLock.Lock()
+		defer dbLock.Unlock()
+		if db == nil {
+			connect()
+		}
+	}
+	return db
 }

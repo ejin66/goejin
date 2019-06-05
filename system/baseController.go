@@ -1,14 +1,14 @@
-package controller
+package system
 
 import (
-	"net/http"
-	"io"
-	"fmt"
-	"io/ioutil"
-	"GoEjin/system/common"
-	"GoEjin/system/session"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"goejin/system/session"
+	"goejin/util"
+	"io"
+	"io/ioutil"
+	"net/http"
 )
 
 type Base interface {
@@ -18,9 +18,9 @@ type Base interface {
 
 /**
 Cb : controller
-Method : default controller request method. if "",means no limit for method
-Methods : controller functions exact request method. if "",means no limit for method
- */
+DefaultMethod : default controller request method. if "",means no limit for method
+Methods : controller functions request method. if "",means no limit for method
+*/
 type Cfg struct {
 	Cb            Base
 	DefaultMethod string
@@ -51,7 +51,7 @@ func (this *Context) setStatusCode(code int) {
 
 /*
 获取post参数
- */
+*/
 func (this *Context) FetchForm(key string) string {
 	fmt.Println(key, this.Req.PostFormValue(key))
 	return this.Req.PostFormValue(key)
@@ -64,7 +64,7 @@ func (this *Context) FetchBodyAsJson() string {
 
 /**
 pointer
- */
+*/
 func (this *Context) FetchBodyAs(i interface{}) {
 	body, _ := ioutil.ReadAll(this.Req.Body)
 	json.Unmarshal(body, i)
@@ -84,7 +84,7 @@ func (this *Context) FetchJson(key string) (interface{}, error) {
 func (this *Context) FetchJsonInt(key string) (returnValue int, returnError error) {
 	defer func() {
 		if err := recover(); err != nil {
-			common.PrintError(err)
+			util.PrintError(err)
 			returnError = errors.New("value type is not int")
 		}
 	}()
@@ -112,12 +112,12 @@ func (this *Context) FetchJsonString(key string) (returnValue string, returnErro
 
 /*
 获取post body
- */
+*/
 func (this *Context) Body() string {
 	body, err := ioutil.ReadAll(this.Req.Body)
 
 	if err != nil {
-		common.PrintError(err)
+		util.PrintError(err)
 		return ""
 	}
 	return string(body)

@@ -1,0 +1,9 @@
+{
+  "IpAddress" : "0.0.0.0",
+  "IpPort" : "80",
+  "DbUser" : "root",
+  "DbPassword" : "123456",
+  "DbAddress" : "localhost",
+  "DbPort" : "3306",
+  "DbName" : "dbname"
+}
