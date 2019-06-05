@@ -15,17 +15,17 @@ Controller.function(arg1,arg2,...)
 
 # How To Use
 
-**1. 下载**
+### 1. 下载
 ```bash
 go get github.com/ejin66/goejin
 # goejin中封装了db操作，需要依赖mysql driver
 go get github.com/go-sql-driver/mysql
 ```
 
-**2. 配置参数。**
+### 2. 配置参数
 创建config.json，设置ip,port,db等参数，参考example/config.json.
 
-**3. 新建controller。**
+### 3. 新建controller
 创建一个内嵌有system.BaseController的struct, 参照example/homeController.go中的HomeController:
 
 ```go
@@ -34,7 +34,7 @@ type HomeController struct {
 }
 ```
 
-**3. 配置Router。**
+### 4. 配置Router
 在router/router.go中，配置路由规则，如：
 
 ```go
