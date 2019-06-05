@@ -9,5 +9,5 @@ Route table
 POST/GET/EMPTY STRING(both post and get)
 */
 var RouteTable = sysController.Router{
-	"HOME": sysController.Cfg{&HomeController{}, "", sysController.MethodMap{"Index": "GET"}},
+	"home": sysController.Cfg{&HomeController{}, "", sysController.MethodMap{"Index": "GET"}},
 }
