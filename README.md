@@ -38,14 +38,14 @@ type HomeController struct {
 配置路由规则，如：
 
 ```go
-var RouteTable = sysController.Router{
-	"home": sysController.Cfg{&controller.HomeController{}, "", sysController.MethodMap{ "Index":"GET"}},
+var RouteTable = system.Router{
+	"home": system.Cfg{&HomeController{}, "", system.MethodMap{ "Index":"GET"}},
 }
 //  .../home/index  --> HomeController的index方法
 //  且必须 request method 限制为GET
 ```
 
-其中， key值是url中的controller名， value值：第一个参是新建的controller实例指针； 第二个参是默认方法 POST/GET/"" ,代表默认请求方法,空字符串是无限制；第三个参 是限制特定方法的请求。
+其中， key值是url中的controller名， value值：第一个参是新建的controller实例指针； 第二个参是默认方法 POST/GET/"" ,代表默认请求方法,空字符串是无限制；第三个参 是限制特定方法名的请求方法。
 
 ### 5. 运行
 ```go
