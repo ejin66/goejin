@@ -27,9 +27,23 @@ func Replace(s string, new string, regex string) string {
 	return reg.ReplaceAllString(s, new)
 }
 
-func PrintError(msg interface{}) {
+func PrintError(msg ...interface{}) {
 	//其中0x1B是标记，[开始定义颜色，1代表高亮，39代表黑色背景，31代表红色前景，0代表恢复默认颜色。
-	fmt.Printf("%c[0;39;31m%s%s%c[0m\n", 0x1B, "Error: ", msg, 0x1B)
+	log := fmt.Sprint(msg)
+	fmt.Printf(" %c[0;39;31m%s%s%c[0m\n", 0x1B, "Error: ", log[1:len(log)-1], 0x1B)
+}
+
+func Print(msg ...interface{}) {
+	printWithPrefix(" ", msg...)
+}
+
+func PrintLogDivider() {
+	printWithPrefix("", "+-------------------------------------------------------------------------------------------")
+}
+
+func printWithPrefix(prefix string, msg ...interface{}) {
+	log := fmt.Sprint(msg)
+	fmt.Printf("%s%s\n", prefix, log[1:len(log)-1])
 }
 
 func Error404() string {

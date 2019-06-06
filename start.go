@@ -3,10 +3,10 @@
 package goejin
 
 import (
-	"fmt"
 	"github.com/ejin66/goejin/system"
 	"github.com/ejin66/goejin/util"
 	"net/http"
+	"time"
 )
 
 func Listen(path string, router system.Router) {
@@ -14,11 +14,16 @@ func Listen(path string, router system.Router) {
 	system.LoadRouter(router)
 	ip := system.GetConfig().IpAddress + ":" + system.GetConfig().IpPort
 
-	fmt.Println("server listen on ", ip)
+	go func() {
+		time.Sleep(time.Second)
+		util.PrintLogDivider()
+		defer util.PrintLogDivider()
+		util.Print("Running successful!")
+		util.Print("Listened on:", ip)
+	}()
+
 	err := http.ListenAndServe(ip, system.GetServeMux())
 	if err != nil {
-		util.PrintError("server listen err:" + err.Error())
-	} else {
-		fmt.Println("server listen on ", ip)
+		util.PrintError(err.Error())
 	}
 }

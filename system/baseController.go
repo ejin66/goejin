@@ -3,7 +3,6 @@ package system
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/ejin66/goejin/system/session"
 	"github.com/ejin66/goejin/util"
 	"io"
@@ -53,7 +52,7 @@ func (this *Context) setStatusCode(code int) {
 获取post参数
 */
 func (this *Context) FetchForm(key string) string {
-	fmt.Println(key, this.Req.PostFormValue(key))
+	util.Print(key, this.Req.PostFormValue(key))
 	return this.Req.PostFormValue(key)
 }
 

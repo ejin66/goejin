@@ -2,7 +2,6 @@ package system
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 )
@@ -45,7 +44,6 @@ func LoadConf(path string) {
 		log.Fatalln(err)
 	} else {
 		isLoad = true
-		fmt.Println("load: " + GetConfig().ToString())
 	}
 }
 

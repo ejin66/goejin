@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"github.com/ejin66/goejin/util"
 	"io"
 	"net/http"
@@ -36,12 +35,16 @@ func defaultHandler(w http.ResponseWriter, req *http.Request) {
 			io.WriteString(w, util.Error404())
 		}
 	}()
+
+	util.PrintLogDivider()
+	defer util.PrintLogDivider()
+
 	uri := req.RequestURI
 
-	fmt.Print(req.Method, " ", req.Host, " ", uri, " ", req.RemoteAddr, " ")
+	util.Print(req.Method, req.Host, uri, req.RemoteAddr)
 
 	if uri == "/" {
-		io.WriteString(w, web("index.html"))
+		io.WriteString(w, web(uri))
 		return
 	}
 
@@ -124,7 +127,6 @@ func parse(cfg *Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 		}
 
 		mMethod.Call(params)
-		fmt.Println()
 	} else {
 		util.PrintError("Not found method in controller")
 		io.WriteString(*w, util.Error404())

@@ -2,16 +2,21 @@ package system
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/ejin66/goejin/util"
 	"os"
+	"strings"
 )
 
 func web(path string) string {
-	file, err := os.OpenFile(GetConfig().WebPath+"/"+path, os.O_RDONLY, os.ModePerm)
+	sourcePath := GetConfig().WebPath + "/" + path
+	if strings.HasSuffix(sourcePath, "/") {
+		sourcePath += "index.html"
+	}
+	util.Print("load static resource: ", sourcePath)
+	file, err := os.OpenFile(sourcePath, os.O_RDONLY, os.ModePerm)
 	defer file.Close()
 	if err != nil {
-		fmt.Println("open web page err:", err.Error())
+		util.PrintError("open static resource,", err.Error())
 		return util.Error404Web()
 	}
 	buf := bytes.NewBufferString("")
@@ -22,7 +27,7 @@ func web(path string) string {
 			break
 		}
 		if err != nil {
-			fmt.Println("read web page err:", err.Error(), i)
+			util.PrintError("read static resource,", err.Error(), i)
 			break
 		}
 		buf.Write(buffer[:i])

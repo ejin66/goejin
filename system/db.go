@@ -3,7 +3,6 @@ package system
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"github.com/ejin66/goejin/util"
 	_ "github.com/go-sql-driver/mysql"
 	"reflect"
@@ -123,7 +122,7 @@ func (this *sqlBuilder) SetSql(sql string) *sqlBuilder {
 }
 
 func (this *sqlBuilder) BuildSingle(model interface{}) error {
-	fmt.Println(this.Sql)
+	util.Print(this.Sql)
 	results := Query(this.Sql)
 	if len(results) != 1 {
 		return errors.New("query result size is not single!")
@@ -146,7 +145,7 @@ func (this *sqlBuilder) BuildSingle(model interface{}) error {
 }
 
 func (this *sqlBuilder) Build(model interface{}) []interface{} {
-	fmt.Println(this.Sql)
+	util.Print(this.Sql)
 	results := Query(this.Sql)
 	modelType := reflect.TypeOf(model)
 	elements := modelType.Elem()
@@ -210,7 +209,7 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	}
 
 	sql := "DELETE FROM " + table + " WHERE 1 = 1 " + where
-	fmt.Println(sql)
+	util.Print(sql)
 	_, err2 := getDB().Exec(sql)
 
 	if err2 != nil {
@@ -248,7 +247,7 @@ func Update(table string, model interface{}, escapeColumns []string, condition I
 
 	sql := "UPDATE " + table + " SET " + updateStatement + " WHERE 1= 1 " + where
 
-	fmt.Println(sql)
+	util.Print(sql)
 
 	_, err3 := getDB().Exec(sql)
 
@@ -283,7 +282,7 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 	values = string(values[1:])
 
 	sql := "INSERT INTO " + table + "(" + columns + ") VALUES" + "(" + values + ")"
-	fmt.Println(sql)
+	util.Print(sql)
 
 	result, err2 := getDB().Exec(sql)
 
@@ -298,7 +297,7 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 
 func connect() {
 	dataSourceName := GetConfig().DbUser + ":" + GetConfig().DbPassword + "@tcp(" + GetConfig().DbAddress + ":" + GetConfig().DbPort + ")/" + GetConfig().DbName + "?charset=utf8"
-	//fmt.Println(dataSourceName)
+	//util.Print(dataSourceName)
 	database, err := sql.Open("mysql", dataSourceName)
 
 	if err != nil {
