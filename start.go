@@ -14,7 +14,7 @@ func Listen(path string, router system.Router) {
 	system.LoadRouter(router)
 	ip := system.GetConfig().IpAddress + ":" + system.GetConfig().IpPort
 
-	fmt.Println("server listen on1 ", ip)
+	fmt.Println("server listen on ", ip)
 	err := http.ListenAndServe(ip, system.GetServeMux())
 	if err != nil {
 		util.PrintError("server listen err:" + err.Error())
