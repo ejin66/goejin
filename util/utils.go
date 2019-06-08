@@ -38,7 +38,7 @@ func Print(msg ...interface{}) {
 }
 
 func PrintLogDivider() {
-	printWithPrefix("", "+-------------------------------------------------------------------------------------------")
+	printWithPrefix("", "+-----------------------------------------------------------------------")
 }
 
 func printWithPrefix(prefix string, msg ...interface{}) {
