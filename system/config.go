@@ -7,14 +7,9 @@ import (
 )
 
 type Config struct {
-	IpAddress  string
-	IpPort     string
-	DbUser     string
-	DbPassword string
-	DbAddress  string
-	DbPort     string
-	DbName     string
-	WebPath    string //web source path
+	IpAddress string
+	IpPort    string
+	WebPath   string //web source path
 }
 
 //生成一个全局的conf变量存储读取的配置
@@ -50,10 +45,6 @@ func LoadConf(path string) {
 func (this *Config) ToString() string {
 	return "IpAddress: " + this.IpAddress +
 		", IpPort: " + this.IpPort +
-		", DbUser: " + this.DbUser +
-		", DbPassword: " + this.DbPassword +
-		", DbAddress: " + this.DbAddress +
-		", DbPort: " + this.DbPort +
-		", DbName: " + this.DbName
+		", WebPath: " + this.WebPath
 
 }
