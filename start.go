@@ -12,17 +12,17 @@ import (
 func Listen(path string, router system.Router) {
 	system.LoadConf(path)
 	system.LoadRouter(router)
-	ip := system.GetConfig().IpAddress + ":" + system.GetConfig().IpPort
+	addr := system.GetConfig().IpAddress + ":" + system.GetConfig().IpPort
 
 	go func() {
 		time.Sleep(time.Second)
 		util.PrintLogDivider()
 		defer util.PrintLogDivider()
 		util.Print("Running successful!")
-		util.Print("Listened on:", ip)
+		util.Print("Listened on:", addr)
 	}()
 
-	err := http.ListenAndServe(ip, system.GetServeMux())
+	err := http.ListenAndServe(addr, system.GetServeMux())
 	if err != nil {
 		util.PrintError(err.Error())
 	}
