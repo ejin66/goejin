@@ -170,8 +170,12 @@ func (this *sqlBuilder) Build(model interface{}) {
 	reflect.ValueOf(model).Elem().Set(sliceV)
 }
 
-func Query(sql string) []map[string]string {
-	rows, err := getDB().Query(sql)
+func Exec(query string, args ...interface{}) (sql.Result, error) {
+	return getDB().Exec(query, args...)
+}
+
+func Query(query string, args ...interface{}) []map[string]string {
+	rows, err := getDB().Query(query, args...)
 
 	if err != nil {
 		util.PrintError(err)

@@ -14,16 +14,24 @@ func Listen(path string, router system.Router) {
 	system.LoadRouter(router)
 	addr := system.GetConfig().IpAddress + ":" + system.GetConfig().IpPort
 
+	serveErr := make(chan bool, 1)
 	go func() {
-		time.Sleep(time.Second)
-		util.PrintLogDivider()
-		defer util.PrintLogDivider()
-		util.Print("Running successful!")
-		util.Print("Listened on:", addr)
+		select {
+		case <-serveErr:
+		case <-time.After(time.Second):
+			{
+				util.PrintLogDivider()
+				defer util.PrintLogDivider()
+				util.Print("Running successful!")
+				util.Print("Listened on:", addr)
+			}
+		}
 	}()
 
 	err := http.ListenAndServe(addr, system.GetServeMux())
 	if err != nil {
 		util.PrintError(err.Error())
+		serveErr <- true
+		close(serveErr)
 	}
 }
