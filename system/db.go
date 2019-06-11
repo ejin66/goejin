@@ -70,6 +70,10 @@ const (
 	DESC
 )
 
+var ErrNoResult = errors.New("no result found, but should be one")
+
+var ErrOverMuchResult = errors.New("more than one result found, but should be one result only")
+
 func Builder() *sqlBuilder {
 	return new(sqlBuilder)
 }
@@ -260,8 +264,13 @@ func (this *sqlBuilder) BuildExec() (sql.Result, error) {
 func (this *sqlBuilder) BuildSingle(model interface{}) error {
 	util.Print(this.sql)
 	results := Query(this.sql)
-	if len(results) != 1 {
-		return errors.New("query result size is not single!")
+
+	if len(results) == 0 {
+		return ErrNoResult
+	}
+
+	if len(results) > 1 {
+		return ErrOverMuchResult
 	}
 	modelType := reflect.TypeOf(model)
 	elements := modelType.Elem()
