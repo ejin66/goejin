@@ -100,16 +100,18 @@ func valueFormat(value interface{}) string {
 	return result
 }
 
-func valueFormat2(typeName string, value string) (result interface{}) {
+func valueFormat2(typeName string, value interface{}) (result interface{}) {
 	switch typeName {
 	case "int":
-		result, _ = strconv.Atoi(value)
+		result, _ = value.(int)
 	case "bool":
 		if value == "1" {
 			result = true
 		} else {
 			result = false
 		}
+	case "string":
+		result = string(value.([]uint8))
 	default:
 		result = value
 	}
@@ -263,7 +265,7 @@ func (this *sqlBuilder) BuildExec() (sql.Result, error) {
 
 func (this *sqlBuilder) BuildSingle(model interface{}) error {
 	util.Print(this.sql)
-	results := Query(this.sql)
+	results := Query(this.sql, this.args...)
 
 	if len(results) == 0 {
 		return ErrNoResult
@@ -294,7 +296,7 @@ func (this *sqlBuilder) BuildSingle(model interface{}) error {
 */
 func (this *sqlBuilder) Build(model interface{}) {
 	util.Print(this.sql)
-	results := Query(this.sql)
+	results := Query(this.sql, this.args...)
 	elementType := reflect.TypeOf(model).Elem().Elem()
 	sliceV := reflect.ValueOf(model).Elem()
 
@@ -319,12 +321,12 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
 	return getDB().Exec(query, args...)
 }
 
-func Query(query string, args ...interface{}) []map[string]string {
+func Query(query string, args ...interface{}) []map[string]interface{} {
 	rows, err := getDB().Query(query, args...)
 
 	if err != nil {
 		util.PrintError(err)
-		return []map[string]string{}
+		return nil
 	}
 
 	columns, _ := rows.Columns()
@@ -335,14 +337,14 @@ func Query(query string, args ...interface{}) []map[string]string {
 		scanArgs[i] = &values[i]
 	}
 
-	var results []map[string]string
+	var results []map[string]interface{}
 
 	for rows.Next() {
 		err = rows.Scan(scanArgs...)
-		record := make(map[string]string)
+		record := make(map[string]interface{})
 		for i, v := range values {
 			if v != nil {
-				record[columns[i]] = string(v.([]byte))
+				record[columns[i]] = v
 			}
 		}
 		results = append(results, record)
