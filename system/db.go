@@ -70,12 +70,6 @@ const (
 	DESC
 )
 
-/*
-Ipt : input type
-key是数据库的column name , value是对应的值
-*/
-type Ipt map[string]interface{}
-
 func Builder() *sqlBuilder {
 	return new(sqlBuilder)
 }
@@ -247,7 +241,7 @@ func (this *sqlBuilder) Limit(count int) *sqlBuilder {
 	return this
 }
 
-func (this *sqlBuilder) Limit2(start int, count int) *sqlBuilder {
+func (this *sqlBuilder) LimitIndex(start int, count int) *sqlBuilder {
 	this.sql += " LIMIT " + strconv.Itoa(start) + "," + strconv.Itoa(count)
 	return this
 }
@@ -259,11 +253,8 @@ func (this *sqlBuilder) SetSql(query string, values ...interface{}) *sqlBuilder 
 }
 
 func (this *sqlBuilder) BuildExec() (sql.Result, error) {
+	util.Print(this.sql)
 	return getDB().Exec(this.sql, this.args...)
-}
-
-func (this *sqlBuilder) SqlTest() {
-	fmt.Println(this.sql)
 }
 
 func (this *sqlBuilder) BuildSingle(model interface{}) error {
