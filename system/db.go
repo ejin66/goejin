@@ -3,6 +3,7 @@ package system
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/ejin66/goejin/util"
 	_ "github.com/go-sql-driver/mysql"
 	"reflect"
@@ -15,13 +16,59 @@ var db *sql.DB
 var dbLock sync.Mutex
 
 type sqlBuilder struct {
-	Sql string
+	sql  string
+	args []interface{}
 }
 
 type OrderBy struct {
-	Name        string
-	Orientation string
+	Column
+	Direct
 }
+
+type Condition struct {
+	Logic
+	Sign
+	Column
+	Value interface{}
+	next  *Condition
+	last  *Condition
+}
+
+type Column struct {
+	Table string
+	Key   string
+}
+
+type Logic int
+
+type Sign int
+
+type Join int
+
+type Direct int
+
+const (
+	LogicNone Logic = iota
+	LogicOr
+	LogicAnd
+)
+
+const (
+	SignEqual Sign = iota
+	SignGreater
+	SignLess
+)
+
+const (
+	InnerJoin Join = iota
+	LeftJoin
+	RightJoin
+)
+
+const (
+	ASC Direct = iota
+	DESC
+)
 
 /*
 Ipt : input type
@@ -33,7 +80,7 @@ func Builder() *sqlBuilder {
 	return new(sqlBuilder)
 }
 
-func valueFormat(value interface{}) (string, error) {
+func valueFormat(value interface{}) string {
 	var result string
 	switch value.(type) {
 	case int:
@@ -46,10 +93,13 @@ func valueFormat(value interface{}) (string, error) {
 		} else {
 			result = "0"
 		}
+	case Column:
+		c := value.(Column)
+		result = c.parse()
 	default:
-		return "", errors.New("can't recognize condition value type")
+		result = "'" + value.(string) + "'"
 	}
-	return result, nil
+	return result
 }
 
 func valueFormat2(typeName string, value string) (result interface{}) {
@@ -68,62 +118,157 @@ func valueFormat2(typeName string, value string) (result interface{}) {
 	return
 }
 
-func concatWhereCondition(condition Ipt, conditionState ...string) (string, error) {
+func concatWhereCondition(conditions ...Condition) string {
 	var where string
-	for key, value := range condition {
-		result, err := valueFormat(value)
-		if err != nil {
-			return "", err
-		}
-		where += " AND `" + key + "` = " + result
+	for _, v := range conditions {
+		where += v.parseCondition()
 	}
 
-	for _, item := range conditionState {
-		where += item
-	}
-	return where, nil
+	return where
 }
 
-func (this *sqlBuilder) Select(table string, condition Ipt, conditionState ...string) *sqlBuilder {
-	where, err := concatWhereCondition(condition, conditionState...)
+func (c Condition) Append(conditions ...Condition) *Condition {
+	var current = &c
+	for _, item := range conditions {
+		current.next = &item
+		item.last = current
+		current = current.next
+	}
+	return &c
+}
 
-	if err != nil {
-		util.PrintError(err)
-		return nil
+func (c *Condition) parseCondition() string {
+	v := valueFormat(c.Value)
+
+	var logic string
+
+	switch c.Logic {
+	case LogicOr:
+		logic = "OR"
+	case LogicAnd:
+		logic = "AND"
+	case LogicNone:
+	default:
+		logic = ""
 	}
 
-	sql := "SELECT * FROM " + table + " WHERE  1 = 1 " + where
-	this.Sql = sql
+	var sign string
+	switch c.Sign {
+	case SignEqual:
+		sign = "="
+	case SignGreater:
+		sign = ">"
+	case SignLess:
+		sign = "<"
+	}
+
+	var bracketLeft string
+	var bracketRight string
+	if c.last == nil {
+		bracketLeft = "("
+		bracketRight = ")"
+	}
+
+	var nextCondition string
+	if c.next != nil {
+		nextCondition = c.next.parseCondition()
+	}
+
+	result := " " + logic + " " + bracketLeft + c.Column.parse() + sign + v + nextCondition + bracketRight + " "
+	return result
+}
+
+func (c *Column) parse() string {
+	if len(c.Table) == 0 {
+		return "`" + c.Key + "`"
+	} else {
+		return c.Table + ".`" + c.Key + "`"
+	}
+}
+
+func (this *sqlBuilder) Select(table string, columns ...Column) *sqlBuilder {
+	var columnStr string
+
+	for _, v := range columns {
+		columnStr += v.parse() + ","
+	}
+
+	if len(columnStr) == 0 {
+		columnStr = "*"
+	} else {
+		columnStr = columnStr[0 : len(columnStr)-1]
+	}
+
+	this.sql = fmt.Sprintf("SELECT %s FROM %s ", columnStr, table)
+	return this
+}
+
+func (this *sqlBuilder) Join(join Join, Table string, conditions ...Condition) *sqlBuilder {
+	var joinStr string
+
+	switch join {
+	case InnerJoin:
+		joinStr = "INNER JOIN"
+	case LeftJoin:
+		joinStr = "LEFT JOIN"
+	case RightJoin:
+		joinStr = "RIGHT JOIN"
+	}
+
+	this.sql += " " + joinStr + " " + Table + " ON " + concatWhereCondition(conditions...)
+	return this
+}
+
+func (this *sqlBuilder) Where(conditions ...Condition) *sqlBuilder {
+	this.sql += " WHERE " + concatWhereCondition(conditions...)
 	return this
 }
 
 func (this *sqlBuilder) OrderBy(orders ...OrderBy) *sqlBuilder {
-	sql := this.Sql + " ORDER BY "
+	query := this.sql + " ORDER BY "
+
 	for _, item := range orders {
-		sql += item.Name + " " + item.Orientation + ","
+		var direct string
+
+		if item.Direct == ASC {
+			direct = "ASC"
+		} else {
+			direct = "DESC"
+		}
+
+		query += item.Column.parse() + " " + direct + ","
 	}
-	this.Sql = sql[0 : len(sql)-1]
+	this.sql = query[0 : len(query)-1]
 	return this
 }
 
 func (this *sqlBuilder) Limit(count int) *sqlBuilder {
-	this.Sql += " LIMIT " + strconv.Itoa(count)
+	this.sql += " LIMIT " + strconv.Itoa(count)
 	return this
 }
 
 func (this *sqlBuilder) Limit2(start int, count int) *sqlBuilder {
-	this.Sql += " LIMIT " + strconv.Itoa(start) + "," + strconv.Itoa(count)
+	this.sql += " LIMIT " + strconv.Itoa(start) + "," + strconv.Itoa(count)
 	return this
 }
 
-func (this *sqlBuilder) SetSql(sql string) *sqlBuilder {
-	this.Sql = sql
+func (this *sqlBuilder) SetSql(query string, values ...interface{}) *sqlBuilder {
+	this.sql = query
+	this.args = values
 	return this
+}
+
+func (this *sqlBuilder) BuildExec() (sql.Result, error) {
+	return getDB().Exec(this.sql, this.args...)
+}
+
+func (this *sqlBuilder) SqlTest() {
+	fmt.Println(this.sql)
 }
 
 func (this *sqlBuilder) BuildSingle(model interface{}) error {
-	util.Print(this.Sql)
-	results := Query(this.Sql)
+	util.Print(this.sql)
+	results := Query(this.sql)
 	if len(results) != 1 {
 		return errors.New("query result size is not single!")
 	}
@@ -148,8 +293,8 @@ func (this *sqlBuilder) BuildSingle(model interface{}) error {
  model's type must be *slice
 */
 func (this *sqlBuilder) Build(model interface{}) {
-	util.Print(this.Sql)
-	results := Query(this.Sql)
+	util.Print(this.sql)
+	results := Query(this.sql)
 	elementType := reflect.TypeOf(model).Elem().Elem()
 	sliceV := reflect.ValueOf(model).Elem()
 
@@ -205,17 +350,12 @@ func Query(query string, args ...interface{}) []map[string]string {
 	return results
 }
 
-func Delete(table string, condition Ipt, conditionState ...string) bool {
-	where, err := concatWhereCondition(condition, conditionState...)
+func Delete(table string, conditions ...Condition) bool {
+	where := concatWhereCondition(conditions...)
 
-	if err != nil {
-		util.PrintError(err)
-		return false
-	}
-
-	sql := "DELETE FROM " + table + " WHERE 1 = 1 " + where
-	util.Print(sql)
-	_, err2 := getDB().Exec(sql)
+	query := "DELETE FROM " + table + " WHERE " + where
+	util.Print(query)
+	_, err2 := getDB().Exec(query)
 
 	if err2 != nil {
 		util.PrintError(err2)
@@ -224,13 +364,8 @@ func Delete(table string, condition Ipt, conditionState ...string) bool {
 	return true
 }
 
-func Update(table string, model interface{}, escapeColumns []string, condition Ipt, conditionState ...string) bool {
-	where, err := concatWhereCondition(condition, conditionState...)
-
-	if err != nil {
-		util.PrintError(err)
-		return false
-	}
+func Update(table string, model interface{}, escapeColumns []string, conditions ...Condition) bool {
+	where := concatWhereCondition(conditions...)
 
 	var updateStatement string
 	elements := reflect.TypeOf(model).Elem()
@@ -238,10 +373,8 @@ func Update(table string, model interface{}, escapeColumns []string, condition I
 	for i := 0; i < elements.NumField(); i++ {
 		key := elements.Field(i).Tag.Get("db")
 		value := modelValue.Field(i).Interface()
-		result, err := valueFormat(value)
-		if err != nil {
-			continue
-		}
+		result := valueFormat(value)
+
 		if util.InArray(escapeColumns, key) {
 			continue
 		}
@@ -250,11 +383,11 @@ func Update(table string, model interface{}, escapeColumns []string, condition I
 
 	updateStatement = string(updateStatement[1:])
 
-	sql := "UPDATE " + table + " SET " + updateStatement + " WHERE 1= 1 " + where
+	query := "UPDATE " + table + " SET " + updateStatement + " WHERE " + where
 
-	util.Print(sql)
+	util.Print(query)
 
-	_, err3 := getDB().Exec(sql)
+	_, err3 := getDB().Exec(query)
 
 	if err3 != nil {
 		util.PrintError(err3)
@@ -264,7 +397,6 @@ func Update(table string, model interface{}, escapeColumns []string, condition I
 }
 
 func Insert(table string, model interface{}, escapeColumns []string) int64 {
-
 	var columns string
 	var values string
 	elements := reflect.TypeOf(model).Elem()
@@ -272,10 +404,8 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 	for i := 0; i < elements.NumField(); i++ {
 		key := elements.Field(i).Tag.Get("db")
 		value := modelValue.Field(i).Interface()
-		result, err := valueFormat(value)
-		if err != nil {
-			continue
-		}
+		result := valueFormat(value)
+
 		if util.InArray(escapeColumns, key) {
 			continue
 		}
@@ -286,10 +416,10 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 	columns = string(columns[1:])
 	values = string(values[1:])
 
-	sql := "INSERT INTO " + table + "(" + columns + ") VALUES" + "(" + values + ")"
-	util.Print(sql)
+	query := "INSERT INTO " + table + "(" + columns + ") VALUES" + "(" + values + ")"
+	util.Print(query)
 
-	result, err2 := getDB().Exec(sql)
+	result, err2 := getDB().Exec(query)
 
 	if err2 != nil {
 		util.PrintError(err2)
@@ -297,12 +427,10 @@ func Insert(table string, model interface{}, escapeColumns []string) int64 {
 	}
 	i, _ := result.LastInsertId()
 	return i
-
 }
 
 func connect() {
 	dataSourceName := GetConfig().DbUser + ":" + GetConfig().DbPassword + "@tcp(" + GetConfig().DbAddress + ":" + GetConfig().DbPort + ")/" + GetConfig().DbName + "?charset=utf8"
-	//util.Print(dataSourceName)
 	database, err := sql.Open("mysql", dataSourceName)
 
 	if err != nil {
