@@ -18,8 +18,6 @@ Controller.function(arg1,arg2,...)
 ### 1. 下载
 ```bash
 go get github.com/ejin66/goejin
-# goejin中封装了db操作，需要依赖mysql driver
-go get github.com/go-sql-driver/mysql
 ```
 
 ### 2. 配置参数

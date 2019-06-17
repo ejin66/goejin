@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 type Base interface {
@@ -106,6 +107,29 @@ func (this *Context) FetchJsonString(key string) (returnValue string, returnErro
 		returnValue = v.(string)
 	}
 	returnError = err
+	return
+}
+
+func (this *Context) FetchFileAs(key string, path string) (err error) {
+	defer func() {
+		if err := recover(); err != nil {
+			err = errors.New("no file found: " + key)
+		}
+	}()
+
+	file, _, err := this.Req.FormFile(key)
+
+	if err != nil {
+		return
+	}
+
+	lf, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return
+	}
+	defer lf.Close()
+
+	_, err = io.Copy(lf, file)
 	return
 }
 
