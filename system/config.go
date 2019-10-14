@@ -2,6 +2,7 @@ package system
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"os"
 )
@@ -14,7 +15,8 @@ type Config struct {
 	DbAddress  string
 	DbPort     string
 	DbName     string
-	WebPath    string //web source path
+	WebPath    string                 //web source path
+	allValues  map[string]interface{} `json:"-"`
 }
 
 //生成一个全局的conf变量存储读取的配置
@@ -37,9 +39,23 @@ func LoadConf(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer r.Close()
+
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	//解码JSON
-	decoder := json.NewDecoder(r)
-	err = decoder.Decode(&conf)
+	err = json.Unmarshal(data, &conf)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var allValues map[string]interface{}
+	err = json.Unmarshal(data, &allValues)
+	conf.allValues = allValues
+
 	if err != nil {
 		log.Fatalln(err)
 	} else {
@@ -47,13 +63,23 @@ func LoadConf(path string) {
 	}
 }
 
+func (this *Config) Value(key string) interface{} {
+	if !isLoad {
+		panic("load config file before get it!")
+	}
+
+	if _, ok := this.allValues[key]; !ok {
+		return nil
+	}
+
+	return this.allValues[key]
+}
+
 func (this *Config) ToString() string {
-	return "IpAddress: " + this.IpAddress +
-		", IpPort: " + this.IpPort +
-		", DbUser: " + this.DbUser +
-		", DbPassword: " + this.DbPassword +
-		", DbAddress: " + this.DbAddress +
-		", DbPort: " + this.DbPort +
-		", DbName: " + this.DbName
+	data, err := json.Marshal(this.allValues)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(data)
 
 }

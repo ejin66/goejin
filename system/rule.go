@@ -63,7 +63,8 @@ func parse(cfg *Cfg, data []string, w *http.ResponseWriter, req *http.Request) {
 
 	//New会创建一个指向值的pointer
 	//create new instance and the pointer to it : b
-	b := reflect.New(reflect.ValueOf(cfg.Cb).Elem().Type()).Interface().(Base)
+	//b := reflect.New(reflect.ValueOf(cfg.Cb).Elem().Type()).Interface().(Base)
+	b := cfg.Cb
 	ctx := &Context{W: w, Req: req}
 	b.Context(ctx)
 
